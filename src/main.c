@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//#include "cpu.h"
+#include "../include/cpu.h"
 //#include "graphics.h"
 //#include "keyboard.h"
 
