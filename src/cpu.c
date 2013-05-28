@@ -2,23 +2,37 @@
 #include "cpu.h"
 #include "memory.h"
 #include <string.h>
+#include <stdlib.h>
 
 
+/* consider splitting this into its own file */
+
+typedef void (*cpu_op)(cpu_t*);
 
 
-
-
+#define NUM_REGISTERS 32
+#define NUM_OPCODES 64
 
 struct cpu
 {
-    uint32_t registers[32]; //the general purpose registers for the processor
+    uint32_t registers[NUM_REGISTERS]; //the general purpose registers for the processor
     uint32_t PC;            //the program counter of the processor
     uint32_t CCR;           //condition codes register
     uint32_t IR;            //instruction register
     uint32_t MDR;           //memory data register
     uint32_t MAR;           //memory address register
     memory_t* RAM;          //pointer to our memory interface
+
+    uint32_t  opcode;           //the type of instruction we are executing
+    uint32_t* source_reg1;      //source register 1 for an integer/logical operation
+    uint32_t* source_reg2;      //source register 2 for an integer/logical operation
+    uint32_t* destination_reg1; //destination register 1 for an integer/logical operation
+    uint32_t* destination_reg2; //destination register 2 for an integer/logical operation
+                                //NOTE: destination_reg2 is only used for multiplication
+
     //pointer to table of function pointers representing the opcodes goes here
+    cpu_op opcodes[NUM_OPCODES];
+
 };
 
 
@@ -28,10 +42,43 @@ static void update_pc(cpu_t* cpu);
 static void fetch(cpu_t* cpu);
 static void decode(cpu_t* cpu);
 static void execute(cpu_t* cpu);
-static void write_back(cpu_t* cpu);
+//static void write_back(cpu_t* cpu);
 
+static uint32_t* get_source_reg1(cpu_t* cpu);
+static uint32_t* get_source_reg2(cpu_t* cpu);
+static uint32_t* get_destination_reg1(cpu_t* cpu);
+static uint32_t* get_destination_reg2(cpu_t* cpu);
+static uint32_t get_opcode(cpu_t* cpu);
+static cpu_op get_instruction(cpu_t* cpu);
 
+static uint32_t get_opcode(cpu_t* cpu)
+{
+    return (cpu->IR & 0xFC000000) >> 26;
+}
 
+static uint32_t* get_source_reg1(cpu_t* cpu)
+{
+    uint32_t reg_name = (cpu->IR & 0x000001E0) >> 5;
+    return &cpu->registers[reg_name];
+}
+
+static uint32_t* get_source_reg2(cpu_t* cpu)
+{
+    uint32_t reg_name = (cpu->IR & 0x0000001F);
+    return &cpu->registers[reg_name];
+}
+
+static uint32_t* get_destination_reg1(cpu_t* cpu)
+{
+    //FIXME
+    return cpu->destination_reg1;
+}
+
+static uint32_t* get_destination_reg2(cpu_t* cpu)
+{
+    //FIXME
+    return cpu->destination_reg2;
+}
 
 static void install_memory(cpu_t* cpu, memory_t* RAM)
 {
@@ -46,14 +93,31 @@ static void fetch(cpu_t* cpu)
     update_pc(cpu);
 }
 
+
 static void decode(cpu_t* cpu)
 {
+    cpu->opcode = get_opcode(cpu);
+    //we don't know what kind of instruction we have yet, but we can speculatively 
+    //gather other information like source registers and what not because during
+    //execution, the instructions will only reference what they need, effectively discarding the
+    //garbage information in the other registers
+    cpu->source_reg1 = get_source_reg1(cpu);
+    cpu->source_reg2 = get_source_reg2(cpu);
+    cpu->destination_reg1 = get_destination_reg1(cpu);
+    cpu->destination_reg2 = get_destination_reg2(cpu);
+
 
 }
 
 static void execute(cpu_t* cpu)
 {
+    cpu_op instruction = get_instruction(cpu);
+    instruction(cpu);
+}
 
+static cpu_op get_instruction(cpu_t* cpu)
+{
+    return cpu->opcodes[cpu->opcode];
 }
 
 #if 0
