@@ -1,41 +1,22 @@
 
+
+//This file defines the cpu module user-facing functions as well
+//as any additional functions necessary to implement the CPU internals (except
+//for implementing the instructions, which reside in another file).
+
+
 #include "cpu.h"
+#include "cpu_private.h"
+#include "cpu_ops.h"
 #include "memory.h"
 #include <string.h>
 #include <stdlib.h>
 
-
-/* consider splitting this into its own file */
-
-typedef void (*cpu_op)(cpu_t*);
+#define NUM_MEM_LOCATIONS 1024
 
 
-#define NUM_REGISTERS 32
-#define NUM_OPCODES 64
 
-struct cpu
-{
-    uint32_t registers[NUM_REGISTERS]; //the general purpose registers for the processor
-    uint32_t PC;            //the program counter of the processor
-    uint32_t CCR;           //condition codes register
-    uint32_t IR;            //instruction register
-    uint32_t MDR;           //memory data register
-    uint32_t MAR;           //memory address register
-    memory_t* RAM;          //pointer to our memory interface
-
-    uint32_t  opcode;           //the type of instruction we are executing
-    uint32_t* source_reg1;      //source register 1 for an integer/logical operation
-    uint32_t* source_reg2;      //source register 2 for an integer/logical operation
-    uint32_t* destination_reg1; //destination register 1 for an integer/logical operation
-    uint32_t* destination_reg2; //destination register 2 for an integer/logical operation
-                                //NOTE: destination_reg2 is only used for multiplication
-
-    //pointer to table of function pointers representing the opcodes goes here
-    cpu_op opcodes[NUM_OPCODES];
-
-};
-
-
+static void dump_cpu_state(cpu_t* cpu);
 static void install_memory(cpu_t* cpu, memory_t* RAM);
 static void install_opcodes(cpu_t* cpu);
 static void update_pc(cpu_t* cpu);
@@ -50,6 +31,11 @@ static uint32_t* get_destination_reg1(cpu_t* cpu);
 static uint32_t* get_destination_reg2(cpu_t* cpu);
 static uint32_t get_opcode(cpu_t* cpu);
 static cpu_op get_instruction(cpu_t* cpu);
+
+static void install_opcodes(cpu_t* cpu)
+{
+    cpu->opcodes = get_instruction_table();
+}
 
 static uint32_t get_opcode(cpu_t* cpu)
 {
@@ -117,7 +103,7 @@ static void execute(cpu_t* cpu)
 
 static cpu_op get_instruction(cpu_t* cpu)
 {
-    return cpu->opcodes[cpu->opcode];
+    return (*cpu->opcodes)[cpu->opcode];
 }
 
 #if 0
@@ -151,7 +137,21 @@ void init_cpu(cpu_t* cpu)
     cpu->IR = INITIAL_VALUE;
     cpu->MDR = INITIAL_VALUE;
     cpu->MAR = INITIAL_VALUE;
+    install_memory(cpu, make_memory(NUM_MEM_LOCATIONS));
+    install_opcodes(cpu);
+
 }
+
+void destroy_cpu(cpu_t* cpu)
+{
+    free(cpu);
+}
+
+static void dump_cpu_state(cpu_t* cpu)
+{
+
+}
+
 
 void cpu_cycle(cpu_t* cpu)
 {
