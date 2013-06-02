@@ -149,6 +149,19 @@ void destroy_cpu(cpu_t* cpu)
 
 static void dump_cpu_state(cpu_t* cpu)
 {
+    printf("\n\n**** CPU STATE ****\n\n");
+    printf("PC = 0x%04X \t IR = 0x%04X\n", cpu->PC, cpu->IR);
+    printf("CCR = 0x%04X\n", cpu->CCR);
+    printf("MDR = 0x%04X \t MAR = 0x%04X\n\n", cpu->MDR, cpu->MAR);
+
+
+    for (int i = 0; i < NUM_REGISTERS; i+=2)
+    {
+        //printf("R%02d = 0x%04X\n", i, cpu->registers[i]);
+        printf("R%02d = 0x%04X \t R%02d = 0x%04X\n", i, cpu->registers[i], i+1, cpu->registers[i+1]);
+    }
+
+
 
 }
 
@@ -159,6 +172,8 @@ void cpu_cycle(cpu_t* cpu)
     decode(cpu);
     execute(cpu);
     //write_back(cpu);
+
+    dump_cpu_state(cpu);
 
 }
 

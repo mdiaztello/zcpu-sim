@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../include/cpu.h"
+#include "cpu.h"
 //#include "graphics.h"
 //#include "keyboard.h"
 
@@ -19,12 +19,9 @@
 int main(void)
 {
 
-
-
-
-
-
-
+    cpu_t* cpu = make_cpu();
+    init_cpu(cpu);
+    cpu_cycle(cpu);
 
 
     return 0;

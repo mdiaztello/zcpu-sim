@@ -11,7 +11,7 @@ static cpu_op instruction_table[NUM_INSTRUCTIONS];
 
 static void message(const char* msg)
 {
-    printf("executing %s", msg);
+    printf("\nexecuting %s\n", msg);
 }
 
 
