@@ -17,6 +17,7 @@ memory_t* make_memory(size_t mem_size);
 
 uint32_t memory_get(memory_t* RAM, size_t address);
 void memory_set(memory_t* RAM, size_t address, uint32_t value);
+void memory_print(memory_t* RAM, size_t starting_address, size_t ending_address);
 
 
 

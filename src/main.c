@@ -22,6 +22,9 @@ int main(void)
     cpu_t* cpu = make_cpu();
     init_cpu(cpu);
     cpu_cycle(cpu);
+    cpu_cycle(cpu);
+    cpu_cycle(cpu);
+    cpu_cycle(cpu);
 
 
     return 0;

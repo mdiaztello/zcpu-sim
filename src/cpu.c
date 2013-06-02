@@ -16,7 +16,6 @@
 
 
 
-static void dump_cpu_state(cpu_t* cpu);
 static void install_memory(cpu_t* cpu, memory_t* RAM);
 static void install_opcodes(cpu_t* cpu);
 static void update_pc(cpu_t* cpu);
@@ -147,22 +146,23 @@ void destroy_cpu(cpu_t* cpu)
     free(cpu);
 }
 
-static void dump_cpu_state(cpu_t* cpu)
+void dump_cpu_state(cpu_t* cpu)
 {
     printf("\n\n**** CPU STATE ****\n\n");
     printf("PC = 0x%04X \t IR = 0x%04X\n", cpu->PC, cpu->IR);
     printf("CCR = 0x%04X\n", cpu->CCR);
     printf("MDR = 0x%04X \t MAR = 0x%04X\n\n", cpu->MDR, cpu->MAR);
 
-
     for (int i = 0; i < NUM_REGISTERS; i+=2)
     {
         //printf("R%02d = 0x%04X\n", i, cpu->registers[i]);
         printf("R%02d = 0x%04X \t R%02d = 0x%04X\n", i, cpu->registers[i], i+1, cpu->registers[i+1]);
     }
+}
 
-
-
+void dump_memory(cpu_t* cpu, size_t starting_address, size_t ending_address)
+{
+    memory_print(cpu->RAM, starting_address, ending_address);
 }
 
 
@@ -173,7 +173,7 @@ void cpu_cycle(cpu_t* cpu)
     execute(cpu);
     //write_back(cpu);
 
-    dump_cpu_state(cpu);
+    //dump_cpu_state(cpu);
 
 }
 
