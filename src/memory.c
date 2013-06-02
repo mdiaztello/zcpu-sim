@@ -34,7 +34,7 @@ void memory_print(memory_t* RAM, size_t starting_address, size_t ending_address)
     printf("\n----- DUMPING CONTENTS OF RAM -----\n");
     for(size_t i = starting_address; i <= ending_address; i++)
     {
-        printf("address = 0x%04X \t contents = 0x%04X\n", i, memory_get(RAM,i));
+        printf("address = 0x%08X \t contents = 0x%08X\n", i, memory_get(RAM,i));
     }
     printf("\n");
 

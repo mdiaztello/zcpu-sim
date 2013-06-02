@@ -149,14 +149,13 @@ void destroy_cpu(cpu_t* cpu)
 void dump_cpu_state(cpu_t* cpu)
 {
     printf("\n\n**** CPU STATE ****\n\n");
-    printf("PC = 0x%04X \t IR = 0x%04X\n", cpu->PC, cpu->IR);
-    printf("CCR = 0x%04X\n", cpu->CCR);
-    printf("MDR = 0x%04X \t MAR = 0x%04X\n\n", cpu->MDR, cpu->MAR);
+    printf("PC = 0x%08X \t IR = 0x%08X\n", cpu->PC, cpu->IR);
+    printf("CCR = 0x%08X\n", cpu->CCR);
+    printf("MDR = 0x%08X \t MAR = 0x%08X\n\n", cpu->MDR, cpu->MAR);
 
     for (int i = 0; i < NUM_REGISTERS; i+=2)
     {
-        //printf("R%02d = 0x%04X\n", i, cpu->registers[i]);
-        printf("R%02d = 0x%04X \t R%02d = 0x%04X\n", i, cpu->registers[i], i+1, cpu->registers[i+1]);
+        printf("R%02d = 0x%08X \t R%02d = 0x%08X\n", i, cpu->registers[i], i+1, cpu->registers[i+1]);
     }
 }
 
@@ -178,4 +177,12 @@ void cpu_cycle(cpu_t* cpu)
 }
 
 
+void cpu_load_program(cpu_t* cpu, uint32_t program[], size_t program_length)
+{
 
+    for(size_t i = 0; i < program_length; i++)
+    {
+        memory_set(cpu->RAM, i, program[i]);
+    }
+
+}

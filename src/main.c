@@ -12,6 +12,8 @@
 // include any SDL stuff here
 
 
+#define PROGRAM_LENGTH 0x100
+uint32_t program[PROGRAM_LENGTH] = { 0x0400AABB, 0x0801AABB,0x1002AABB, 0x2003AABB };
 
 
 
@@ -21,10 +23,13 @@ int main(void)
 
     cpu_t* cpu = make_cpu();
     init_cpu(cpu);
+    cpu_load_program(cpu, program, PROGRAM_LENGTH);
     cpu_cycle(cpu);
     cpu_cycle(cpu);
     cpu_cycle(cpu);
     cpu_cycle(cpu);
+    dump_cpu_state(cpu);
+    dump_memory(cpu, 0x00, 0x10);
 
 
     return 0;
