@@ -55,14 +55,14 @@ static uint32_t* get_source_reg2(cpu_t* cpu)
 
 static uint32_t* get_destination_reg1(cpu_t* cpu)
 {
-    //FIXME
-    return cpu->destination_reg1;
+    uint32_t reg_name = (cpu->IR & (0x1F << 21)) >> 21;
+    return &cpu->registers[reg_name];
 }
 
 static uint32_t* get_destination_reg2(cpu_t* cpu)
 {
-    //FIXME
-    return cpu->destination_reg2;
+    uint32_t reg_name = (cpu->IR & (0x1F << 6)) >> 6;
+    return &cpu->registers[reg_name];
 }
 
 static void install_memory(cpu_t* cpu, memory_t* RAM)
