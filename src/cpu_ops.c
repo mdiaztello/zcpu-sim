@@ -27,7 +27,20 @@ opcode_table_t* get_instruction_table(void)
 void cpu_and(cpu_t* cpu)
 {
     //FIXME: do we need to update the CCR?
-    *cpu->destination_reg1 = *cpu->source_reg1 & *cpu->source_reg2;
+    if(!cpu->immediate_mode)
+    {
+        *cpu->destination_reg1 = *cpu->source_reg1 & *cpu->source_reg2;
+    }
+    else
+    {
+        //FIXME: I may need to change this
+        //we will fill the upper bits with 1's for now in the immediate mode
+        //operand so that it does no damage to what's in the upper 16-bits of
+        //the register
+        cpu->ALU_immediate_bits |= 0xFFFF0000 ;
+        *cpu->destination_reg1 = *cpu->source_reg1 & cpu->ALU_immediate_bits;
+
+    }
 }
 
 //  OR: bitwise ORs the contents of sr1 and sr2 and stores them in dr1
@@ -37,7 +50,20 @@ void cpu_and(cpu_t* cpu)
 void cpu_or(cpu_t* cpu)
 {
     //FIXME: do we need to update the CCR?
-    *cpu->destination_reg1 = *cpu->source_reg1 | *cpu->source_reg2;
+    if(!cpu->immediate_mode)
+    {
+        *cpu->destination_reg1 = *cpu->source_reg1 | *cpu->source_reg2;
+    }
+    else
+    {
+        //FIXME: I may need to change this
+        //we will fill the upper bits with 0's for now in the immediate mode
+        //operand so that it does no damage to what's in the upper 16-bits of
+        //the register
+        cpu->ALU_immediate_bits &= 0x0000FFFF ;
+        printf("the immediate-mode value was 0x%08X\n", cpu->ALU_immediate_bits);
+        *cpu->destination_reg1 = *cpu->source_reg1 | cpu->ALU_immediate_bits;
+    }
 }
 
 //    NOT: negates contents of sr1 and puts them in dr1

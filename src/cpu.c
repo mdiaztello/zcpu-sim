@@ -28,6 +28,8 @@ static uint32_t* get_source_reg1(cpu_t* cpu);
 static uint32_t* get_source_reg2(cpu_t* cpu);
 static uint32_t* get_destination_reg1(cpu_t* cpu);
 static uint32_t* get_destination_reg2(cpu_t* cpu);
+static bool get_immediate_mode_flag(cpu_t* cpu);
+static uint32_t get_ALU_immediate_bits(cpu_t* cpu);
 static uint32_t get_opcode(cpu_t* cpu);
 static cpu_op get_instruction(cpu_t* cpu);
 
@@ -65,6 +67,17 @@ static uint32_t* get_destination_reg2(cpu_t* cpu)
     return &cpu->registers[reg_name];
 }
 
+static bool get_immediate_mode_flag(cpu_t* cpu)
+{
+    return (cpu->IR & 0x00000001); //the last bit of the instruction is the immediate mode flag
+}
+
+//gets the 15-bit immediate mode operand from the instruction for ALU operations
+static uint32_t get_ALU_immediate_bits(cpu_t* cpu)
+{
+    return (cpu->IR & 0x0000FFFF) >> 1;
+}
+
 static void install_memory(cpu_t* cpu, memory_t* RAM)
 {
     cpu->RAM = RAM;
@@ -90,6 +103,8 @@ static void decode(cpu_t* cpu)
     cpu->source_reg2 = get_source_reg2(cpu);
     cpu->destination_reg1 = get_destination_reg1(cpu);
     cpu->destination_reg2 = get_destination_reg2(cpu);
+    cpu->immediate_mode = get_immediate_mode_flag(cpu);
+    cpu->ALU_immediate_bits = get_ALU_immediate_bits(cpu);
 
 
 }
