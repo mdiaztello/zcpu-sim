@@ -4,8 +4,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "debug.h"
 
-#include "cpu.h"
+#include "computer.h"
+//#include "cpu.h"
 //#include "graphics.h"
 //#include "keyboard.h"
 
@@ -23,17 +25,31 @@ uint32_t program[PROGRAM_LENGTH] = {0x0400FFFF,0x04215A5B,0x04000000}; // OR R0 
 
 int main(void)
 {
+    //cpu_t* cpu = make_cpu();
+    //init_cpu(cpu);
+    crashprint();
+    computer_t* computer = build_computer();
+    crashprint();
+    
+    computer_load_program(computer, program, PROGRAM_LENGTH);
+    crashprint();
 
-    cpu_t* cpu = make_cpu();
-    init_cpu(cpu);
-    cpu_load_program(cpu, program, PROGRAM_LENGTH);
-    cpu_cycle(cpu);
-    cpu_cycle(cpu);
-    cpu_cycle(cpu);
-    cpu_cycle(cpu);
-    dump_cpu_state(cpu);
-    dump_memory(cpu, 0x00, 0x10);
+    //cpu_cycle(cpu);
+    //cpu_cycle(cpu);
+    //cpu_cycle(cpu);
+    //cpu_cycle(cpu);
+    
+    crashprint();
+#if 0
+    computer_single_step(computer);
+    computer_single_step(computer);
+    computer_single_step(computer);
+    computer_single_step(computer);
+#endif
+    crashprint();
 
+    //dump_cpu_state(computer->cpu);
+    //dump_memory(computer->RAM, 0x00, 0x10);
 
     return 0;
 }

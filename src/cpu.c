@@ -12,11 +12,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define NUM_MEM_LOCATIONS 1024
 
 
 
-static void install_memory(cpu_t* cpu, memory_t* RAM);
 static void install_opcodes(cpu_t* cpu);
 static void update_pc(cpu_t* cpu);
 static void fetch(cpu_t* cpu);
@@ -78,10 +76,6 @@ static uint32_t get_ALU_immediate_bits(cpu_t* cpu)
     return (cpu->IR & 0x0000FFFF) >> 1;
 }
 
-static void install_memory(cpu_t* cpu, memory_t* RAM)
-{
-    cpu->RAM = RAM;
-}
 
 static void fetch(cpu_t* cpu)
 {
@@ -133,27 +127,37 @@ static void update_pc(cpu_t* cpu)
 
 }
 
-
-
+//This just makes the raw cpu object, it doesn't do any of the work to "build" it
+//FIXME: add cache parameter later
 cpu_t* make_cpu(void)
 {
     cpu_t* new_cpu = calloc(1, sizeof(struct cpu));
     return new_cpu;
 }
 
-void init_cpu(cpu_t* cpu)
+void cpu_reset(cpu_t* cpu)
 {
     const uint32_t INITIAL_ADDRESS = 0x00;
     const uint32_t INITIAL_VALUE = 0x00;
-    memset(cpu, 0x00, sizeof(struct cpu));
+    memset(cpu->registers, 0x00, sizeof(cpu->registers));
     cpu->PC = INITIAL_ADDRESS;
     cpu->CCR = INITIAL_VALUE;
     cpu->IR = INITIAL_VALUE;
     cpu->MDR = INITIAL_VALUE;
-    cpu->MAR = INITIAL_VALUE;
-    install_memory(cpu, make_memory(NUM_MEM_LOCATIONS));
-    install_opcodes(cpu);
+    cpu->MAR = INITIAL_ADDRESS;
+    cpu->opcode = INITIAL_VALUE;
+    cpu->source_reg1 = NULL;
+    cpu->source_reg2 = NULL;
+    cpu->destination_reg1 = NULL;
+    cpu->destination_reg2 = NULL;
+    cpu->immediate_mode = false;
+    cpu->ALU_immediate_bits = INITIAL_VALUE;
+}
 
+void init_cpu(cpu_t* cpu)
+{
+    cpu_reset(cpu);
+    install_opcodes(cpu);
 }
 
 void destroy_cpu(cpu_t* cpu)
@@ -174,12 +178,6 @@ void dump_cpu_state(cpu_t* cpu)
     }
 }
 
-void dump_memory(cpu_t* cpu, size_t starting_address, size_t ending_address)
-{
-    memory_print(cpu->RAM, starting_address, ending_address);
-}
-
-
 void cpu_cycle(cpu_t* cpu)
 {
     fetch(cpu);
@@ -188,16 +186,4 @@ void cpu_cycle(cpu_t* cpu)
     //write_back(cpu);
 
     //dump_cpu_state(cpu);
-
-}
-
-
-void cpu_load_program(cpu_t* cpu, uint32_t program[], size_t program_length)
-{
-
-    for(size_t i = 0; i < program_length; i++)
-    {
-        memory_set(cpu->RAM, i, program[i]);
-    }
-
 }
