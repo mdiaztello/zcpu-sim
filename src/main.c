@@ -7,9 +7,6 @@
 #include "debug.h"
 
 #include "computer.h"
-//#include "cpu.h"
-//#include "graphics.h"
-//#include "keyboard.h"
 
 // include any SDL stuff here
 
@@ -25,31 +22,20 @@ uint32_t program[PROGRAM_LENGTH] = {0x0400FFFF,0x04215A5B,0x04000000}; // OR R0 
 
 int main(void)
 {
-    //cpu_t* cpu = make_cpu();
-    //init_cpu(cpu);
-    crashprint();
     computer_t* computer = build_computer();
-    crashprint();
-    
     computer_load_program(computer, program, PROGRAM_LENGTH);
-    crashprint();
 
-    //cpu_cycle(cpu);
-    //cpu_cycle(cpu);
-    //cpu_cycle(cpu);
-    //cpu_cycle(cpu);
-    
-    crashprint();
-#if 0
     computer_single_step(computer);
+    computer_print_elapsed_cycles(computer);
     computer_single_step(computer);
+    computer_print_elapsed_cycles(computer);
     computer_single_step(computer);
+    computer_print_elapsed_cycles(computer);
     computer_single_step(computer);
-#endif
-    crashprint();
+    computer_print_elapsed_cycles(computer);
 
-    //dump_cpu_state(computer->cpu);
-    //dump_memory(computer->RAM, 0x00, 0x10);
+    dump_computer_cpu_state(computer);
+    dump_computer_memory(computer, 0x00, 0x10);
 
     return 0;
 }
