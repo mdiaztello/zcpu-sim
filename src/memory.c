@@ -1,4 +1,6 @@
 
+#include "debug.h"
+#include "memory_bus.h"
 #include "memory.h"
 #include <stdlib.h>
 #include <string.h>
@@ -26,24 +28,54 @@ void memory_reset(memory_t* RAM)
 
 uint32_t memory_get(memory_t* RAM, size_t address)
 {
-    //FIXME: memory mapped IO stuff here as well
     return RAM->system_memory[address];
 }
 
 void memory_set(memory_t* RAM, size_t address, uint32_t value)
 {
-    //FIXME: memory mapped IO stuff here as well
     RAM->system_memory[address] = value;
 }
 
 //prints the range in memory from the starting to the ending address inclusive
-void dump_memory(memory_t* RAM, size_t starting_address, size_t ending_address)
+void memory_print(memory_t* RAM, size_t starting_address, size_t ending_address)
 {
     printf("\n----- DUMPING CONTENTS OF RAM -----\n");
     for(size_t i = starting_address; i <= ending_address; i++)
     {
-        printf("address = 0x%08X \t contents = 0x%08X\n", i, memory_get(RAM,i));
+        printf("address = 0x%08X \t contents = 0x%08X\n", (unsigned int)i, memory_get(RAM,i));
     }
     printf("\n");
 
+}
+
+
+void memory_cycle(memory_t* RAM, memory_bus_t* bus)
+{
+    if(MEMORY_SELECTED != bus_get_selected_device(bus) || !bus_is_enabled(bus))
+    {
+        return;
+    }
+    
+    //for now, memory will take at least one cycle to read/write
+    static const uint32_t MAX_CYCLES = 80000;
+    static uint32_t cycle_count = 0;
+
+    if(cycle_count < MAX_CYCLES)
+    {
+        cycle_count++;
+        return;
+    }
+    else
+    {
+        cycle_count = 0;
+        if(bus_is_write_operation(bus))
+        {
+            memory_set(RAM, bus_get_address_lines(bus), bus_get_data_lines(bus));
+        }
+        else
+        {
+            bus_set_data_lines(bus, memory_get(RAM, bus_get_address_lines(bus)));
+        }
+        bus_set_device_ready(bus); //read/write complete
+    }
 }
