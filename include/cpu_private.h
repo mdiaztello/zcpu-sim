@@ -9,7 +9,7 @@
 #define __CPU_PRIVATE_H_
 
 #include "cpu.h" //for the cpu struct typedef and the cpu_op typdef
-#include "memory.h"
+#include "memory_bus.h" 
 
 #define NUM_REGISTERS 32
 #define NUM_INSTRUCTIONS 64
@@ -26,7 +26,7 @@ struct cpu
     uint32_t IR;            //instruction register
     uint32_t MDR;           //memory data register
     uint32_t MAR;           //memory address register
-    memory_t* RAM;          //pointer to our memory interface
+    memory_bus_t* bus;      //represents our interface to RAM and special devices
 
     uint32_t  opcode;           //the type of instruction we are executing
     uint32_t* source_reg1;      //source register 1 for an integer/logical operation
@@ -39,6 +39,8 @@ struct cpu
 
     //pointer to table of function pointers representing the opcodes goes here
     opcode_table_t* opcodes;
+
+    bool instruction_finished; //tells us whether we've completed the instruction yet
 
 };
 

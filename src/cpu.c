@@ -5,22 +5,32 @@
 //for implementing the instructions, which reside in another file).
 
 
+#include "debug.h"
 #include "cpu.h"
 #include "cpu_private.h"
 #include "cpu_ops.h"
-#include "memory.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 
 
+enum cpu_pipeline_stage_t { FETCH1, FETCH2, DECODE, EXECUTE };
+
+enum cpu_pipeline_stage_t pipeline_stage = FETCH1;
 
 static void install_opcodes(cpu_t* cpu);
 static void update_pc(cpu_t* cpu);
-static void fetch(cpu_t* cpu);
+static void fetch1(cpu_t* cpu);
+static void fetch2(cpu_t* cpu);
 static void decode(cpu_t* cpu);
 static void execute(cpu_t* cpu);
 //static void write_back(cpu_t* cpu);
+
+typedef void (*pipeline_stage_t)(cpu_t*);
+pipeline_stage_t pipeline_stages[7] = { &fetch1, &fetch2, &decode, &execute, 0x00, 0x00} ;
+
 
 static uint32_t* get_source_reg1(cpu_t* cpu);
 static uint32_t* get_source_reg2(cpu_t* cpu);
@@ -77,14 +87,32 @@ static uint32_t get_ALU_immediate_bits(cpu_t* cpu)
 }
 
 
-static void fetch(cpu_t* cpu)
+static void fetch1(cpu_t* cpu)
 {
+    pipeline_stage = FETCH2;
     cpu->MAR = cpu->PC;
-    cpu->MDR = memory_get(cpu->RAM, cpu->MAR);
-    cpu->IR = cpu->MDR;
     update_pc(cpu);
+    bus_enable(cpu->bus);
+    bus_set_address_lines(cpu->bus, cpu->MAR);
+    bus_set_read_operation(cpu->bus);
 }
 
+static void fetch2(cpu_t* cpu)
+{
+    if(bus_is_device_ready(cpu->bus))
+    {
+        pipeline_stage = DECODE;
+        cpu->MDR = bus_get_data_lines(cpu->bus);
+        cpu->IR = cpu->MDR;
+        bus_clear_device_ready(cpu->bus);
+        bus_disable(cpu->bus);
+    }
+    else
+    {
+        pipeline_stage = FETCH2;
+    }
+
+}
 
 static void decode(cpu_t* cpu)
 {
@@ -99,14 +127,14 @@ static void decode(cpu_t* cpu)
     cpu->destination_reg2 = get_destination_reg2(cpu);
     cpu->immediate_mode = get_immediate_mode_flag(cpu);
     cpu->ALU_immediate_bits = get_ALU_immediate_bits(cpu);
-
-
+    pipeline_stage = EXECUTE;
 }
 
 static void execute(cpu_t* cpu)
 {
     cpu_op instruction = get_instruction(cpu);
     instruction(cpu);
+    pipeline_stage = FETCH1;
 }
 
 static cpu_op get_instruction(cpu_t* cpu)
@@ -124,14 +152,14 @@ static void write_back(cpu_t* cpu)
 static void update_pc(cpu_t* cpu)
 {
     cpu->PC += 1; //updates 1 word at a time, but each word is 32-bits
-
 }
 
 //This just makes the raw cpu object, it doesn't do any of the work to "build" it
 //FIXME: add cache parameter later
-cpu_t* make_cpu(void)
+cpu_t* make_cpu(memory_bus_t* bus)
 {
     cpu_t* new_cpu = calloc(1, sizeof(struct cpu));
+    new_cpu->bus = bus;
     return new_cpu;
 }
 
@@ -180,10 +208,28 @@ void dump_cpu_state(cpu_t* cpu)
 
 void cpu_cycle(cpu_t* cpu)
 {
-    fetch(cpu);
-    decode(cpu);
-    execute(cpu);
+    pipeline_stage_t stage = pipeline_stages[pipeline_stage];
+    stage(cpu);
+
+    //if we just finished executing then we've completed the instruction 
+    //(FIXME: this won't be true when we add the memory write stage)
+    if(stage == execute)
+        cpu->instruction_finished = true;
+    else
+    {
+        cpu->instruction_finished = false;
+    }
+
+
+    //fetch(cpu);
+    //decode(cpu);
+    //execute(cpu);
     //write_back(cpu);
 
     //dump_cpu_state(cpu);
+}
+
+bool cpu_completed_instruction(cpu_t* cpu)
+{
+    return cpu->instruction_finished;
 }

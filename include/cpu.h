@@ -12,16 +12,18 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "memory_bus.h"
 
 
 typedef struct cpu cpu_t;
 
-cpu_t* make_cpu(void);
+cpu_t* make_cpu(memory_bus_t* bus);
 void cpu_reset(cpu_t* cpu);
 void init_cpu(cpu_t* cpu);
 void destroy_cpu(cpu_t* cpu);
 void cpu_cycle(cpu_t* cpu);
 void cpu_load_program(cpu_t* cpu, uint32_t program[], size_t program_length);
 void dump_cpu_state(cpu_t* cpu);
+bool cpu_completed_instruction(cpu_t* cpu);
 
 #endif
