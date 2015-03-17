@@ -14,21 +14,23 @@
 #include "preprocessor_assembler.h"
 
 // include any SDL stuff here
-
 #include <SDL2/SDL.h>
 
 bool simulation_running = false;
 
-const int init_window_x = 600;
-const int init_window_y = 600;
-const int window_width = 640;
-const int window_height = 480;
+const int WINDOW_WIDTH = 640;
+const int WINDOW_HEIGHT = 480;
+
+//This is where our custom computer will write the graphical output
+uint32_t* frame_buffer = NULL;
 
 //The window we'll be rendering to
-SDL_Window *window = NULL;
+SDL_Window* window = NULL;
 
-//The surface contained by the window
-SDL_Surface* screen_surface = NULL;
+//the renderer is an SDL2 concept that handles getting our data to the GPU
+SDL_Renderer* renderer = NULL;
+//This texture is where we will copy our framebuffer to for SDL to do its magic
+SDL_Texture* screen = NULL;
 
 
 static void program_failure(void)
@@ -50,7 +52,6 @@ static void quit_simulation(void)
 
 void init_window(void)
 {
-    //int init_error = SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     int init_error = SDL_Init(SDL_INIT_VIDEO);
     if(init_error)
     {
@@ -58,67 +59,88 @@ void init_window(void)
         program_failure();
     }
 
-    window = SDL_CreateWindow("zcpu-sim", init_window_x, init_window_y, window_width, window_height, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("zcpu-sim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     if(window == NULL)
     {
+        fprintf(stderr, "failed to allocate SDL window\n");
         program_failure();
     }
 
-    //get window surface
-    screen_surface = SDL_GetWindowSurface(window);
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    if(renderer == NULL)
+    {
+        fprintf(stderr, "failed to allocate SDL renderer\n");
+        program_failure();
+    }
+
+    screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
+    if(screen == NULL)
+    {
+        fprintf(stderr, "failed to allocate SDL texture\n");
+        program_failure();
+    }
+
+    frame_buffer = calloc(1, WINDOW_WIDTH*WINDOW_HEIGHT*sizeof(uint32_t));
+    if(frame_buffer == NULL)
+    {
+        fprintf(stderr, "failed to allocate frame buffer\n");
+        program_failure();
+    }
 }
 
 void input(void)
 {
-    int speed = 20;
-    static size_t ticks = 0;
     SDL_Event e;
     while(SDL_PollEvent(&e))
     {
-        switch(e.type)
-        {
-            case SDL_QUIT:
-                simulation_running = false;
-                break;
-            default:
-                break;
-        }
-
-    }
-
-    if(e.type == SDL_KEYDOWN)
-    {
-        if(e.key.keysym.sym == SDLK_q)
+        if(e.type == SDL_QUIT)
         {
             simulation_running = false;
+            break;
         }
-        else
+        else if(e.type == SDL_KEYDOWN)
         {
+            if(e.key.keysym.sym == SDLK_q)
+            {
+                simulation_running = false;
+                break;
+            }
+            else
+            {
+                printf("Some other key was pressed...\n");
+            }
         }
     }
-
-
-#if 0
-    if(ticks > 25)
-    {
-        ticks = 0;
-    }
-    else
-    {
-        ticks++;
-    }
-#endif
 }
 
 void clear_screen(void)
 {
-    SDL_FillRect(screen_surface, NULL, SDL_MapRGB( screen_surface->format, 0x00, 0x3F, 0x00));
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF); //clear to black
+    SDL_RenderClear(renderer);
+}
+
+void change_color(uint32_t* buffer, uint32_t pixel_value)
+{
+    for(int col = 0; col < WINDOW_WIDTH; col++)
+    {
+        for(int row = 0; row < WINDOW_HEIGHT; row++)
+        {
+            buffer[row*WINDOW_WIDTH + col] = pixel_value;
+        }
+    }
 }
 
 void draw(void)
 {
     clear_screen();
-    SDL_UpdateWindowSurface(window);
+
+    int pitch = WINDOW_WIDTH*sizeof(uint32_t);
+    SDL_LockTexture(screen, NULL, (void**) &frame_buffer, &pitch);
+    change_color(frame_buffer, 0x00FF00FF);
+    SDL_UnlockTexture(screen);
+    SDL_UpdateTexture(screen, NULL, frame_buffer, WINDOW_WIDTH*sizeof(uint32_t));
+    SDL_RenderCopy(renderer, screen, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 #define PROGRAM_LENGTH 0x100
@@ -158,6 +180,7 @@ int main(void)
     simulation_running = true;
     while(simulation_running)
     {
+        input();
         draw();
     }
 
