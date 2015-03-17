@@ -134,6 +134,8 @@ void draw(void)
 {
     clear_screen();
 
+    //FIXME: figure out how to do this locking/unlocking cleanly (i.e. without
+    //having my cpu code getting contaminated with a bunch of SDL code)
     int pitch = WINDOW_WIDTH*sizeof(uint32_t);
     SDL_LockTexture(screen, NULL, (void**) &frame_buffer, &pitch);
     change_color(frame_buffer, 0x00FF00FF);
