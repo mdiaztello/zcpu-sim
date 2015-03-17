@@ -3,7 +3,7 @@
 #include "cpu.h"
 #include "memory_bus.h"
 #include "memory.h"
-//#include "graphics.h"
+#include "graphics.h"
 //#include "io.h"
 
 #include <stdio.h>
@@ -11,7 +11,7 @@
 #include <stdbool.h>
 
 
-
+bool simulation_running = false;
 
 struct computer_t 
 {
@@ -19,18 +19,19 @@ struct computer_t
     cpu_t* cpu;
     memory_bus_t* bus;
     memory_t* RAM;
-    //graphics_t screen;
+    graphics_t* screen;
 };
 
 //FIXME: these will need parameters for graphics and memory_bus later
 //Creates a computer object and connects its dependencies, but doesn't 
 //initialize it
-computer_t* make_computer(cpu_t* cpu, memory_t* memory, memory_bus_t* bus)
+computer_t* make_computer(cpu_t* cpu, memory_t* memory, memory_bus_t* bus, graphics_t* graphics)
 {
     computer_t* computer = calloc(1, sizeof(struct computer_t));
     computer->cpu = cpu;
     computer->RAM = memory;
     computer->bus = bus;
+    computer->screen = graphics;
     return computer;
 }
 
@@ -48,12 +49,15 @@ cpu_t* build_cpu(memory_bus_t* bus)
 //and initializes/resets it
 computer_t* build_computer(void)
 {
+    const uint16_t DISPLAY_WIDTH = 640;
+    const uint16_t DISPLAY_HEIGHT = 480;
     const uint32_t NUM_MEM_LOCATIONS = 1024;
     memory_bus_t* bus = make_memory_bus();
 
     cpu_t* cpu = build_cpu(bus);
     memory_t* RAM = make_memory(NUM_MEM_LOCATIONS);
-    computer_t* computer = make_computer(cpu, RAM, bus);
+    graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    computer_t* computer = make_computer(cpu, RAM, bus, display);
     computer_reset(computer);
     return computer;
 }
@@ -63,9 +67,9 @@ void computer_reset(computer_t* computer)
     computer->elapsed_cycles = 0;
     cpu_reset(computer->cpu);
     memory_reset(computer->RAM);
+    graphics_reset(computer->screen);
     //reset_IO(computer->IO);
     //reset_memory_bus(computer->memory_bus);
-    //reset_graphics(computer->screen);
 }
 
 //load the supplied program into computer memory
@@ -94,9 +98,12 @@ void computer_single_step(computer_t* computer)
 //execute the program in memory until told to stop
 void computer_run(computer_t* computer)
 {
-    while(true)
+    simulation_running = true;
+    while(simulation_running)
     {
         computer_single_step(computer);
+        //DEBUG
+        graphics_draw(computer->screen);
     }
 }
 

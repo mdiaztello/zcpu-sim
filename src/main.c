@@ -13,81 +13,17 @@
 //jumps have to be calculated and placed manually.
 #include "preprocessor_assembler.h"
 
-// include any SDL stuff here
-#include <SDL2/SDL.h>
-
-bool simulation_running = false;
-
-const int WINDOW_WIDTH = 640;
-const int WINDOW_HEIGHT = 480;
-
-//This is where our custom computer will write the graphical output
-uint32_t* frame_buffer = NULL;
-
-//The window we'll be rendering to
-SDL_Window* window = NULL;
-
-//the renderer is an SDL2 concept that handles getting our data to the GPU
-SDL_Renderer* renderer = NULL;
-//This texture is where we will copy our framebuffer to for SDL to do its magic
-SDL_Texture* screen = NULL;
 
 
-static void program_failure(void)
-{
-    exit(EXIT_FAILURE);
-}
-
-void clean_up(void)
-{
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
 
 static void quit_simulation(void)
 {
-    clean_up();
+    //clean_up();
     exit(EXIT_SUCCESS);
 }
 
-void init_window(void)
-{
-    int init_error = SDL_Init(SDL_INIT_VIDEO);
-    if(init_error)
-    {
-        fprintf(stderr, "%s\n", SDL_GetError());
-        program_failure();
-    }
 
-    window = SDL_CreateWindow("zcpu-sim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-    if(window == NULL)
-    {
-        fprintf(stderr, "failed to allocate SDL window\n");
-        program_failure();
-    }
-
-    renderer = SDL_CreateRenderer(window, -1, 0);
-    if(renderer == NULL)
-    {
-        fprintf(stderr, "failed to allocate SDL renderer\n");
-        program_failure();
-    }
-
-    screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
-    if(screen == NULL)
-    {
-        fprintf(stderr, "failed to allocate SDL texture\n");
-        program_failure();
-    }
-
-    frame_buffer = calloc(1, WINDOW_WIDTH*WINDOW_HEIGHT*sizeof(uint32_t));
-    if(frame_buffer == NULL)
-    {
-        fprintf(stderr, "failed to allocate frame buffer\n");
-        program_failure();
-    }
-}
-
+#if 0
 void input(void)
 {
     SDL_Event e;
@@ -112,38 +48,10 @@ void input(void)
         }
     }
 }
+#endif
 
-void clear_screen(void)
-{
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF); //clear to black
-    SDL_RenderClear(renderer);
-}
 
-void change_color(uint32_t* buffer, uint32_t pixel_value)
-{
-    for(int col = 0; col < WINDOW_WIDTH; col++)
-    {
-        for(int row = 0; row < WINDOW_HEIGHT; row++)
-        {
-            buffer[row*WINDOW_WIDTH + col] = pixel_value;
-        }
-    }
-}
 
-void draw(void)
-{
-    clear_screen();
-
-    //FIXME: figure out how to do this locking/unlocking cleanly (i.e. without
-    //having my cpu code getting contaminated with a bunch of SDL code)
-    int pitch = WINDOW_WIDTH*sizeof(uint32_t);
-    SDL_LockTexture(screen, NULL, (void**) &frame_buffer, &pitch);
-    change_color(frame_buffer, 0x00FF00FF);
-    SDL_UnlockTexture(screen);
-    SDL_UpdateTexture(screen, NULL, frame_buffer, WINDOW_WIDTH*sizeof(uint32_t));
-    SDL_RenderCopy(renderer, screen, NULL, NULL);
-    SDL_RenderPresent(renderer);
-}
 
 #define PROGRAM_LENGTH 0x100
 //uint32_t program[PROGRAM_LENGTH] = { 0x0400AABB, 0x0801AABB,0x1002AABB, 0x2003AABB };
@@ -165,6 +73,7 @@ int main(void)
     computer_t* computer = build_computer();
     computer_load_program(computer, program, PROGRAM_LENGTH);
 
+#if 0
     computer_single_step(computer);
     computer_print_elapsed_cycles(computer);
     computer_single_step(computer);
@@ -176,15 +85,9 @@ int main(void)
 
     dump_computer_cpu_state(computer);
     dump_computer_memory(computer, 0x00, 0x10);
+#endif
 
-    init_window();
-
-    simulation_running = true;
-    while(simulation_running)
-    {
-        input();
-        draw();
-    }
+    computer_run(computer);
 
     quit_simulation();
 
