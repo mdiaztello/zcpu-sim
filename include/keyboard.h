@@ -6,5 +6,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef struct keyboard_t keyboard_t;
 
-#endif
+keyboard_t* create_keyboard(void);
+void destroy_keyboard(keyboard_t* keyboard);
+
+void input(keyboard_t* keyboard);
+
+#endif //__KEYBOARD_H_

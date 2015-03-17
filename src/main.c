@@ -14,43 +14,10 @@
 #include "preprocessor_assembler.h"
 
 
-
-
 static void quit_simulation(void)
 {
-    //clean_up();
     exit(EXIT_SUCCESS);
 }
-
-
-#if 0
-void input(void)
-{
-    SDL_Event e;
-    while(SDL_PollEvent(&e))
-    {
-        if(e.type == SDL_QUIT)
-        {
-            simulation_running = false;
-            break;
-        }
-        else if(e.type == SDL_KEYDOWN)
-        {
-            if(e.key.keysym.sym == SDLK_q)
-            {
-                simulation_running = false;
-                break;
-            }
-            else
-            {
-                printf("Some other key was pressed...\n");
-            }
-        }
-    }
-}
-#endif
-
-
 
 
 #define PROGRAM_LENGTH 0x100

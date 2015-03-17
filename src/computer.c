@@ -4,7 +4,7 @@
 #include "memory_bus.h"
 #include "memory.h"
 #include "graphics.h"
-//#include "io.h"
+#include "keyboard.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -20,18 +20,20 @@ struct computer_t
     memory_bus_t* bus;
     memory_t* RAM;
     graphics_t* screen;
+    keyboard_t* keyboard;
 };
 
 //FIXME: these will need parameters for graphics and memory_bus later
 //Creates a computer object and connects its dependencies, but doesn't 
 //initialize it
-computer_t* make_computer(cpu_t* cpu, memory_t* memory, memory_bus_t* bus, graphics_t* graphics)
+computer_t* make_computer(cpu_t* cpu, memory_t* memory, memory_bus_t* bus, graphics_t* graphics, keyboard_t* keyboard)
 {
     computer_t* computer = calloc(1, sizeof(struct computer_t));
     computer->cpu = cpu;
     computer->RAM = memory;
     computer->bus = bus;
     computer->screen = graphics;
+    computer->keyboard = keyboard;
     return computer;
 }
 
@@ -57,7 +59,8 @@ computer_t* build_computer(void)
     cpu_t* cpu = build_cpu(bus);
     memory_t* RAM = make_memory(NUM_MEM_LOCATIONS);
     graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    computer_t* computer = make_computer(cpu, RAM, bus, display);
+    keyboard_t* keyboard = create_keyboard();
+    computer_t* computer = make_computer(cpu, RAM, bus, display, keyboard);
     computer_reset(computer);
     return computer;
 }
@@ -103,6 +106,7 @@ void computer_run(computer_t* computer)
     {
         computer_single_step(computer);
         //DEBUG
+        input(computer->keyboard);
         graphics_draw(computer->screen);
     }
 }
