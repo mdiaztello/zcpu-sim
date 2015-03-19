@@ -1,7 +1,7 @@
 
 
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include "keyboard.h"
 
 
@@ -15,6 +15,11 @@ extern bool simulation_running;
 //later
 struct keyboard_t
 {
+    //FIXME: do we want to have more than just this one register for
+    //communicating with the keyboard? Do we even need a keyboard status
+    //register if the keyboard can interrupt the CPU to tell it there is new
+    //data? The memory map currently has space allocated for 2 keyboard
+    //registers, but I think I may end up only using one
     uint16_t keycode;
 };
 
@@ -43,6 +48,7 @@ void input(keyboard_t* keyboard)
         }
         else if(e.type == SDL_KEYDOWN)
         {
+            keyboard->keycode = e.key.keysym.sym;
             if(e.key.keysym.sym == SDLK_q)
             {
                 simulation_running = false;

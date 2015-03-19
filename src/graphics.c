@@ -12,8 +12,9 @@
 //had no idea how to use SDL!
 
 // include any SDL stuff here
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include "graphics.h"
+#include "memory_bus.h"
 
 struct graphics_t 
 {
@@ -164,4 +165,21 @@ void graphics_draw(graphics_t* graphics)
     SDL_UpdateTexture(graphics->screen, NULL, graphics->frame_buffer, pitch);
     SDL_RenderCopy(graphics->renderer, graphics->screen, NULL, NULL);
     SDL_RenderPresent(graphics->renderer);
+}
+
+void graphics_cycle(graphics_t* graphics, memory_bus_t* bus)
+{
+    if(GRAPHICS_SELECTED != bus_get_selected_device(bus) || !bus_is_enabled(bus))
+    {
+        return;
+    }
+
+    if(bus_is_write_operation(bus))
+    {
+        //for now, the video subsystem only supports writing to the frame
+        //buffer, not reading back from it
+        graphics_update(graphics, bus_get_address_lines(bus), bus_get_data_lines(bus));
+    }
+    //FIXME: is this even needed if we are only writing to a block of memory/a device?
+    bus_set_device_ready(bus); //read/write complete
 }

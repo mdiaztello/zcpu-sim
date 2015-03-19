@@ -2,6 +2,7 @@
 
 #include "debug.h"
 #include "memory_bus.h"
+#include "memory_map.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -112,9 +113,31 @@ void bus_cycle(memory_bus_t* bus)
     }
 
     //decode memory map
-    if(false)
+    if(bus->address_lines <= BOOT_ROM_END)
     {
-        crashprint();
+        //NOTE: haven't implemented a BOOT ROM yet, so leave this commented out for now
+        //bus->selected_device = BOOT_ROM_SELECTED;
+
+        //FIXME: until we create an actual boot rom, we'll just say that we are
+        //reading these addresses from RAM because that's where our little test
+        //programs for the instruction set are being loaded in RAM starting at
+        //address 0 I will eventually need to fix this by making a dummy boot
+        //rom that loads the PC with the first address in RAM, and then using
+        //the new PC as an index into our program array, but I haven't even
+        //implemented a jump instruction yet!
+        bus->selected_device = MEMORY_SELECTED;
+    }
+    else if((INTERRUPT_VECTOR_TABLE_START <= bus->address_lines) && (bus->address_lines <= INTERRUPT_VECTOR_TABLE_END))
+    {
+        bus->selected_device = MEMORY_SELECTED;
+    }
+    else if((GRAPHICS_REGION_START <= bus->address_lines) && (bus->address_lines <= GRAPHICS_REGION_END))
+    {
+        bus->selected_device = GRAPHICS_SELECTED;
+    }
+    else if((KEYBOARD_REGION_START <= bus->address_lines) && (bus->address_lines <= KEYBOARD_REGION_END))
+    {
+        bus->selected_device = KEYBOARD_SELECTED;
     }
     else //no special addresses, so pick normal memory
     {

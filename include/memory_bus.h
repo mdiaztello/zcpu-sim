@@ -9,7 +9,7 @@ typedef enum bus_mode_t bus_mode_t;
 typedef enum selected_device_t selected_device_t;
 typedef struct memory_bus_t memory_bus_t;
 enum bus_mode_t { DATA_READ, DATA_WRITE };
-enum selected_device_t { NO_DEVICE_SELECTED, MEMORY_SELECTED, GRAPHICS_SELECTED, IO_SELECTED };
+enum selected_device_t { NO_DEVICE_SELECTED, MEMORY_SELECTED, GRAPHICS_SELECTED, KEYBOARD_SELECTED };
 
 memory_bus_t* make_memory_bus(void);
 

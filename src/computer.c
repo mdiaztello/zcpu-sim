@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "graphics.h"
 #include "keyboard.h"
+#include "debug.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -58,7 +59,9 @@ computer_t* build_computer(void)
 
     cpu_t* cpu = build_cpu(bus);
     memory_t* RAM = make_memory(NUM_MEM_LOCATIONS);
+    //DEBUG
     graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    //graphics_t* display = NULL;
     keyboard_t* keyboard = create_keyboard();
     computer_t* computer = make_computer(cpu, RAM, bus, display, keyboard);
     computer_reset(computer);

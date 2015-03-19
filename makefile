@@ -15,9 +15,8 @@ SRC_DIRS = src
 TEST_SRC_DIRS = tests
 MOCKS_SRC_DIRS = mocks
 
-SDL_LIB = -L/usr/local/lib -lSDL2 -Wl,-rpath=/usr/local/lib
-#SDL_INCLUDE = -I/usr/local/include
-SDL_INCLUDE = /usr/local/include
+SDL_LIB = -lSDL2
+SDL_INCLUDE = /usr/include/SDL2/
 
 INCLUDE_DIRS =\
   .\
