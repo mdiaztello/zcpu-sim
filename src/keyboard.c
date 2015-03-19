@@ -2,6 +2,7 @@
 
 
 #include "SDL.h"
+#include "memory_bus.h"
 #include "keyboard.h"
 
 
@@ -63,3 +64,18 @@ void input(keyboard_t* keyboard)
 }
 
 
+void keyboard_cycle(keyboard_t* keyboard, memory_bus_t* bus)
+{
+    if(KEYBOARD_SELECTED != bus_get_selected_device(bus) || !bus_is_enabled(bus))
+    {
+        return;
+    }
+
+    //it makes no sense to write data _to_ the keyboard, so only reading is supported
+    if(bus_is_read_operation(bus))
+    {
+        bus_set_data_lines(bus, keyboard->keycode);
+    }
+    //FIXME: is this even needed if we are only writing to a block of memory/a device?
+    bus_set_device_ready(bus); //read/write complete
+}
