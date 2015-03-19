@@ -14,16 +14,16 @@
 
 
 //HELPER MACROS
-#define GET_BOTTOM_BITS(value, number)          ((value) & (((1u) << number) - 1))
-#define REGISTER_OP(op, dest, sr1, sr2)         ((op << 26) | (dest << 21) | (sr1 << 16) | (sr2 << 11))
-#define IMMEDIATE_OP(op, dest, sr, imm15)       ((op << 26) | (dest << 21) | (sr << 16) | (GET_BOTTOM_BITS(imm15, 15) << 1) | IMMEDIATE_MODE)
-#define PC_RELATIVE(op, reg, imm21)             ((op << 26) | (reg << 21) | (GET_BOTTOM_BITS(imm21, 21)))
-#define BASE_PLUS_OFFSET(op, reg, base, imm16)  ((op << 26) | (reg << 21) | (base << 16) | (GET_BOTTOM_BITS(imm16, 16)))
+#define GET_BOTTOM_BITS(value, number)          ((value) & (((1u) << (number)) - 1))
+#define REGISTER_OP(op, dest, sr1, sr2)         (((op) << 26) | ((dest) << 21) | ((sr1) << 16) | ((sr2) << 11))
+#define IMMEDIATE_OP(op, dest, sr, imm15)       (((op) << 26) | ((dest) << 21) | ((sr) << 16) | (GET_BOTTOM_BITS((imm15), 15) << 1) | IMMEDIATE_MODE)
+#define PC_RELATIVE(op, reg, imm21)             (((op) << 26) | ((reg) << 21) | (GET_BOTTOM_BITS((imm21), 21)))
+#define BASE_PLUS_OFFSET(op, reg, base, imm16)  (((op) << 26) | ((reg) << 21) | ((base) << 16) | (GET_BOTTOM_BITS((imm16), 16)))
 
 //OPCODES
 #define OPCODE_AND      (0x00)
 #define OPCODE_OR       (0x01)
-#define OPCODE_NOT      (0x01)
+#define OPCODE_NOT      (0x02)
 
 
 #define OPCODE_LOAD     (0x0B)
@@ -77,7 +77,7 @@
 #define OR(destination_reg, source_reg1, source_reg2)                       REGISTER_OP(OPCODE_OR, destination_reg, source_reg1, source_reg2)
 #define OR_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits)  IMMEDIATE_OP(OPCODE_OR, destination_reg, source_reg, immediate_value_15_bits)
 //the bottom 16 bits of "NOT" are not used, so we don't care about their value
-#define NOT(destination_reg, source_reg)                                    IMMEDIATE_OP(OPCODE_NOT, destination_reg, source_reg, 0x00)  
+#define NOT(destination_reg, source_reg)                                    REGISTER_OP(OPCODE_NOT, destination_reg, source_reg, 0x00)
 
 #define LOAD(destination_reg, pc_relative_offset)                           PC_RELATIVE(OPCODE_LOAD, destination_reg, pc_relative_offset)
 #define LOADR(destination_reg, base_reg, offset)                            BASE_PLUS_OFFSET(OPCODE_LOADR, destination_reg, base_reg, offset)
