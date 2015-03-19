@@ -16,7 +16,7 @@
 
 
 
-enum cpu_pipeline_stage_t { FETCH1, FETCH2, DECODE, EXECUTE };
+enum cpu_pipeline_stage_t { FETCH1, FETCH2, DECODE, MEMORY1, MEMORY2, EXECUTE };
 
 enum cpu_pipeline_stage_t pipeline_stage = FETCH1;
 
@@ -25,11 +25,13 @@ static void update_pc(cpu_t* cpu);
 static void fetch1(cpu_t* cpu);
 static void fetch2(cpu_t* cpu);
 static void decode(cpu_t* cpu);
+static void memory1(cpu_t* cpu);
+static void memory2(cpu_t* cpu);
 static void execute(cpu_t* cpu);
 //static void write_back(cpu_t* cpu);
 
 typedef void (*pipeline_stage_t)(cpu_t*);
-pipeline_stage_t pipeline_stages[7] = { &fetch1, &fetch2, &decode, &execute, 0x00, 0x00} ;
+pipeline_stage_t pipeline_stages[7] = { &fetch1, &fetch2, &decode, &memory1, &memory2, &execute};
 
 
 static uint32_t* get_source_reg1(cpu_t* cpu);
@@ -40,6 +42,28 @@ static bool get_immediate_mode_flag(cpu_t* cpu);
 static uint32_t get_ALU_immediate_bits(cpu_t* cpu);
 static uint32_t get_opcode(cpu_t* cpu);
 static cpu_op get_instruction(cpu_t* cpu);
+static uint32_t get_pc_relative_offset(cpu_t* cpu);
+static uint32_t* get_base_reg(cpu_t* cpu);
+
+static uint32_t sign_extend_pc_relative_offset(uint32_t pc_relative_offset)
+{
+    uint32_t result = pc_relative_offset;
+    if(pc_relative_offset >> 20)
+    {
+        result |= 0xFFE00000;
+    }
+    return result;
+}
+
+static uint32_t sign_extend_base_offset(uint32_t base_register_offset)
+{
+    uint32_t result = base_register_offset;
+    if(base_register_offset >> 15)
+    {
+        result |= 0xFFFF0000;
+    }
+    return result;
+}
 
 static void install_opcodes(cpu_t* cpu)
 {
@@ -86,9 +110,27 @@ static uint32_t get_ALU_immediate_bits(cpu_t* cpu)
     return (cpu->IR & 0x0000FFFF) >> 1;
 }
 
+//gets the 21-bit pc-relative offset encoded in the load/store instruction
+static uint32_t get_pc_relative_offset(cpu_t* cpu)
+{
+    return (cpu->IR & 0x001FFFFF);
+}
+
+static uint32_t* get_base_reg(cpu_t* cpu)
+{
+    uint32_t reg_name = (cpu->IR & 0x03E00000) >> 26;
+    return &cpu->registers[reg_name];
+}
+
+//get the 16-bit base-register offset for base_reg + offset style instructions
+static uint32_t get_base_register_offset(cpu_t* cpu)
+{
+    return (cpu->IR & 0x0000FFFF);
+}
 
 static void fetch1(cpu_t* cpu)
 {
+    beacon();
     pipeline_stage = FETCH2;
     cpu->MAR = cpu->PC;
     update_pc(cpu);
@@ -99,6 +141,7 @@ static void fetch1(cpu_t* cpu)
 
 static void fetch2(cpu_t* cpu)
 {
+    beacon();
     if(bus_is_device_ready(cpu->bus))
     {
         pipeline_stage = DECODE;
@@ -116,6 +159,7 @@ static void fetch2(cpu_t* cpu)
 
 static void decode(cpu_t* cpu)
 {
+    beacon();
     cpu->opcode = get_opcode(cpu);
     //we don't know what kind of instruction we have yet, but we can speculatively 
     //gather other information like source registers and what not because during
@@ -127,11 +171,63 @@ static void decode(cpu_t* cpu)
     cpu->destination_reg2 = get_destination_reg2(cpu);
     cpu->immediate_mode = get_immediate_mode_flag(cpu);
     cpu->ALU_immediate_bits = get_ALU_immediate_bits(cpu);
-    pipeline_stage = EXECUTE;
+    cpu->pc_relative_offset_bits = get_pc_relative_offset(cpu);
+    cpu->base_reg = get_base_reg(cpu);
+    cpu->base_register_offset_bits = get_base_register_offset(cpu);
+    //load/store instructions get special treatment in our FSM
+    if(is_memory_instruction(cpu->opcode))
+    {
+        pipeline_stage = MEMORY1;
+    }
+    else
+    {
+        pipeline_stage = EXECUTE;
+    }
+}
+
+static void memory1(cpu_t* cpu)
+{
+    beacon();
+    //implementing loads first
+    //FIXME This stuff probably won't work for storing
+    pipeline_stage = MEMORY2;
+    if(is_pc_relative_instruction(cpu->opcode))
+    {
+        //FIXME: sign extend offset to handle negative offsets?
+        cpu->MAR = cpu->PC + sign_extend_pc_relative_offset(cpu->pc_relative_offset_bits);
+        printf("the PC is %08x, the offset is %08x, the MAR is %08x\n", cpu->PC, sign_extend_pc_relative_offset(cpu->pc_relative_offset_bits), cpu->MAR);
+    }
+    else //base register + offset
+    {
+        //FIXME: sign extend offset to handle negative offsets?
+        cpu->MAR = cpu->base_reg + sign_extend_base_offset(cpu->base_register_offset_bits);
+    }
+    bus_enable(cpu->bus);
+    bus_set_address_lines(cpu->bus, cpu->MAR);
+    bus_set_read_operation(cpu->bus);
+
+}
+
+static void memory2(cpu_t* cpu)
+{
+    beacon();
+    if(bus_is_device_ready(cpu->bus))
+    {
+        pipeline_stage = EXECUTE;
+        cpu->MDR = bus_get_data_lines(cpu->bus);
+        printf("the mdr is %08x\n", cpu->MDR);
+        bus_clear_device_ready(cpu->bus);
+        bus_disable(cpu->bus);
+    }
+    else
+    {
+        pipeline_stage = MEMORY2;
+    }
 }
 
 static void execute(cpu_t* cpu)
 {
+    beacon();
     cpu_op instruction = get_instruction(cpu);
     instruction(cpu);
     pipeline_stage = FETCH1;

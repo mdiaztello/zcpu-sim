@@ -57,7 +57,8 @@ void memory_cycle(memory_t* RAM, memory_bus_t* bus)
     }
     
     //for now, memory will take at least one cycle to read/write
-    static const uint32_t MAX_CYCLES = 80000;
+    //static const uint32_t MAX_CYCLES = 80000;
+    static const uint32_t MAX_CYCLES = 1;
     static uint32_t cycle_count = 0;
 
     if(cycle_count < MAX_CYCLES)

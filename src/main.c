@@ -29,8 +29,22 @@ static void quit_simulation(void)
 //uint32_t program[PROGRAM_LENGTH] = { 0x0400AABB, 0x0801AABB,0x1002AABB, 0x2003AABB };
 //uint32_t program[PROGRAM_LENGTH] = {NOT(R0, R0), NOT(R0, R0), NOT(R0, R0)}; //check that negating 3 times is the same as negating once
 //uint32_t program[PROGRAM_LENGTH] = {NOT(R0, R0), NOT(R0, R0), NOT(R0, R1)}; //check that negating 3 times is the same as negating once, but change the output of the final negation
-uint32_t program[PROGRAM_LENGTH] = {OR_IMMEDIATE(R0, R0, 0x7FFF), OR_IMMEDIATE(R1, R1, 0x2D2D), OR(R0, R0, R0)}; // check immediate mode OR on different registers, check that ORing with self changes nothing
 
+#if 0
+// check immediate mode OR on different registers, check that ORing with self changes nothing
+uint32_t program[PROGRAM_LENGTH] = {
+    OR_IMMEDIATE(R0, R0, 0x7FFF), 
+    OR_IMMEDIATE(R1, R1, 0x2D2D), 
+    OR(R0, R0, R0)
+};
+#endif
+
+//check the load instructions
+uint32_t program[PROGRAM_LENGTH] = {
+    LOAD(R0, 0xFFFFFFFF),
+    LOAD(R1, 0x00000000),
+    LOAD(R2, -2),
+};
 
 
 
@@ -54,7 +68,17 @@ int main(void)
     dump_computer_memory(computer, 0x00, 0x10);
 #endif
 
-    computer_run(computer);
+    computer_single_step(computer);
+    computer_print_elapsed_cycles(computer);
+    computer_single_step(computer);
+    computer_print_elapsed_cycles(computer);
+    computer_single_step(computer);
+    computer_print_elapsed_cycles(computer);
+
+    dump_computer_cpu_state(computer);
+    dump_computer_memory(computer, 0x00, 0x10);
+
+    //computer_run(computer);
 
     quit_simulation();
 

@@ -7,7 +7,19 @@
 
 static cpu_op instruction_table[NUM_INSTRUCTIONS];
 
+//tells us if the instruction touches memory during execution (i.e. load/store)
+bool is_memory_instruction(uint8_t opcode)
+{
+    return ((0x0B <= opcode) && (opcode <= 0x0F));
+}
 
+bool is_pc_relative_instruction(uint8_t opcode)
+{
+    const uint8_t LOAD = 0x0B;
+    const uint8_t LOADA = 0x0D;
+    const uint8_t STORE = 0x0E;
+    return (LOAD == opcode) || (LOADA == opcode) || (STORE == opcode);
+}
 
 static void message(const char* msg)
 {
@@ -79,8 +91,21 @@ void cpu_not(cpu_t* cpu)
 }
 
 
+
+void cpu_load_pc_relative(cpu_t* cpu)
+{
+    beacon();
+    *cpu->destination_reg1 = cpu->MDR;
+}
+
+void cpu_load_base_plus_offset(cpu_t* cpu)
+{
+    *cpu->destination_reg1 = cpu->MDR;
+}
+
 void cpu_nop(cpu_t* cpu)
 {
+    beacon();
     if(cpu != NULL)
     {
         message(__FUNCTION__);
@@ -90,7 +115,7 @@ void cpu_nop(cpu_t* cpu)
 static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
     &cpu_and, &cpu_or, &cpu_not, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
-    &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,

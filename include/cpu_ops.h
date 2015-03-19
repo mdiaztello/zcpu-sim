@@ -17,5 +17,8 @@
 #include <stdbool.h>
 
 opcode_table_t* get_instruction_table(void);
+bool is_memory_instruction(uint8_t opcode);
+bool is_pc_relative_instruction(uint8_t opcode);
+
 
 #endif
