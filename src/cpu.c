@@ -99,6 +99,13 @@ static uint32_t* get_destination_reg2(cpu_t* cpu)
     return &cpu->registers[reg_name];
 }
 
+//gets the register to store from for store-type instructions
+static uint32_t* get_store_source_reg(cpu_t* cpu)
+{
+    uint32_t reg_name = (cpu->IR & (0x1F << 21)) >> 21;
+    return &cpu->registers[reg_name];
+}
+
 static bool get_immediate_mode_flag(cpu_t* cpu)
 {
     return (cpu->IR & 0x00000001); //the last bit of the instruction is the immediate mode flag
@@ -169,6 +176,7 @@ static void decode(cpu_t* cpu)
     cpu->source_reg2 = get_source_reg2(cpu);
     cpu->destination_reg1 = get_destination_reg1(cpu);
     cpu->destination_reg2 = get_destination_reg2(cpu);
+    cpu->store_source_reg = get_store_source_reg(cpu);
     cpu->immediate_mode = get_immediate_mode_flag(cpu);
     cpu->ALU_immediate_bits = get_ALU_immediate_bits(cpu);
     cpu->pc_relative_offset_bits = get_pc_relative_offset(cpu);
@@ -177,7 +185,16 @@ static void decode(cpu_t* cpu)
     //load/store instructions get special treatment in our FSM
     if(is_memory_instruction(cpu->opcode))
     {
-        pipeline_stage = MEMORY1;
+        if(is_load_effective_address_instruction(cpu->opcode))
+        {
+            //This instruction doesn't actually access memory, it just loads an
+            //address into a register, so skip the memory accesses
+            pipeline_stage = EXECUTE;
+        }
+        else
+        {
+            pipeline_stage = MEMORY1;
+        }
     }
     else
     {
@@ -202,10 +219,19 @@ static void memory1(cpu_t* cpu)
         //FIXME: sign extend offset to handle negative offsets?
         cpu->MAR = cpu->base_reg + sign_extend_base_offset(cpu->base_register_offset_bits);
     }
+
     bus_enable(cpu->bus);
     bus_set_address_lines(cpu->bus, cpu->MAR);
-    bus_set_read_operation(cpu->bus);
-
+    if(is_load_instruction(cpu->opcode))
+    {
+        bus_set_read_operation(cpu->bus);
+    }
+    else //store instruction
+    {
+        bus_set_write_operation(cpu->bus);
+        cpu->MDR = *cpu->store_source_reg;
+        bus_set_data_lines(cpu->bus, cpu->MDR);
+    }
 }
 
 static void memory2(cpu_t* cpu)
@@ -213,11 +239,22 @@ static void memory2(cpu_t* cpu)
     beacon();
     if(bus_is_device_ready(cpu->bus))
     {
-        pipeline_stage = EXECUTE;
-        cpu->MDR = bus_get_data_lines(cpu->bus);
-        printf("the mdr is %08x\n", cpu->MDR);
         bus_clear_device_ready(cpu->bus);
         bus_disable(cpu->bus);
+
+        if(is_load_instruction(cpu->opcode))
+        {
+            cpu->MDR = bus_get_data_lines(cpu->bus);
+            printf("the mdr is %08x\n", cpu->MDR);
+            pipeline_stage = EXECUTE;
+        }
+        else
+        {
+            //store instructions don't really have anything to execute, they
+            //are purely memory access commands, so we can go back to fetch
+            //instead of executing nothing
+            pipeline_stage = FETCH1;
+        }
     }
     else
     {

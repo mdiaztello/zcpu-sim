@@ -39,15 +39,28 @@ uint32_t program[PROGRAM_LENGTH] = {
 };
 #endif
 
+#if 0
 //check the load instructions
 uint32_t program[PROGRAM_LENGTH] = {
     LOAD(R0, 0xFFFFFFFF),
     LOAD(R1, 0x00000000),
     LOAD(R2, -2),
 };
+#endif
 
+#if 0
+//check the store instructions
+uint32_t program[PROGRAM_LENGTH] = {
+    OR_IMMEDIATE(R0, R0, 0xABC),
+    STORE(R0, 10),
+    STORE(R0, -1),
+};
+#endif
 
-
+//check the LOADA instructions
+uint32_t program[PROGRAM_LENGTH] = {
+    LOADA(R0, 0x1100)
+};
 
 int main(void)
 {
@@ -70,10 +83,12 @@ int main(void)
 
     computer_single_step(computer);
     computer_print_elapsed_cycles(computer);
+#if 0
     computer_single_step(computer);
     computer_print_elapsed_cycles(computer);
     computer_single_step(computer);
     computer_print_elapsed_cycles(computer);
+#endif
 
     dump_computer_cpu_state(computer);
     dump_computer_memory(computer, 0x00, 0x10);

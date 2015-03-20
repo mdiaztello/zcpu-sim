@@ -13,12 +13,27 @@ bool is_memory_instruction(uint8_t opcode)
     return ((0x0B <= opcode) && (opcode <= 0x0F));
 }
 
+bool is_load_instruction(uint8_t opcode)
+{
+    const uint8_t LOAD = 0x0B;
+    const uint8_t LOADR = 0x0C;
+    const uint8_t LOADA = 0x0D;
+
+    return ((LOAD == opcode) || (LOADR == opcode) || (LOADA == opcode));
+}
+
 bool is_pc_relative_instruction(uint8_t opcode)
 {
     const uint8_t LOAD = 0x0B;
     const uint8_t LOADA = 0x0D;
     const uint8_t STORE = 0x0E;
     return (LOAD == opcode) || (LOADA == opcode) || (STORE == opcode);
+}
+
+bool is_load_effective_address_instruction(uint8_t opcode)
+{
+    const uint8_t LOADA = 0x0D;
+    return  LOADA == opcode;
 }
 
 static void message(const char* msg)
@@ -103,6 +118,11 @@ void cpu_load_base_plus_offset(cpu_t* cpu)
     *cpu->destination_reg1 = cpu->MDR;
 }
 
+void cpu_load_effective_address(cpu_t* cpu)
+{
+    *cpu->destination_reg1 = cpu->PC + cpu->pc_relative_offset_bits;
+}
+
 void cpu_nop(cpu_t* cpu)
 {
     beacon();
@@ -115,7 +135,7 @@ void cpu_nop(cpu_t* cpu)
 static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
     &cpu_and, &cpu_or, &cpu_not, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
-    &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,

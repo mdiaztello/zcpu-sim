@@ -20,5 +20,8 @@ opcode_table_t* get_instruction_table(void);
 bool is_memory_instruction(uint8_t opcode);
 bool is_pc_relative_instruction(uint8_t opcode);
 
+bool is_load_effective_address_instruction(uint8_t opcode);
+bool is_load_instruction(uint8_t opcode);
+
 
 #endif
