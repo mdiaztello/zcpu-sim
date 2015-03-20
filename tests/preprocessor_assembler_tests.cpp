@@ -155,6 +155,96 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, loada_instruction_encoded_destination_registe
 }
 
 
+// STORE instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, store_instruction_encoded_no_offset_correctly)
+{
+    CHECK( STORE(R0, 0) == 0x38000000);
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, store_instruction_encoded_negative_one_offset_correctly)
+{
+    CHECK( STORE(R0, -1) == 0x381FFFFF );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, store_instruction_encoded_max_negative_offset_correctly)
+{
+    //the pc-relative offset is 21-bits, so the most negative offset is -2^20 or -1048576
+    CHECK( STORE(R0, -1048576) == 0x38100000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, store_instruction_encoding_truncates_the_last_21_bits)
+{
+    //the pc-relative offset is 21-bits, so the most negative offset is -2^20 or -1048576 or 0xFFF00000
+    CHECK( STORE(R0, 0xFFD00000) == 0x38100000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, store_instruction_encoded_positive_one_offset_correctly)
+{
+    CHECK( STORE(R0, 1) == 0x38000001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, store_instruction_encoded_max_positive_offset_correctly)
+{
+    //the pc-relative offset is 21-bits, so the most positive offset is 2^20-1 or 1048575
+    CHECK( STORE(R0, 1048575) == 0x380FFFFF );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, store_instruction_encoded_destination_register_correctly)
+{
+    CHECK( STORE(R31, 0) == 0x3BE00000 );
+    CHECK( STORE(R16, 0) == 0x3A000000 );
+    CHECK( STORE(R1, 0) == 0x38200000 );
+    CHECK( STORE(R0, 0) == 0x38000000 );
+}
+
+//STORER instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, storer_instruction_encoded_destination_register_correctly)
+{
+    CHECK( STORER(R31, R0, 0) == 0x3FE00000 );
+    CHECK( STORER(R16, R0, 0) == 0x3E000000 );
+    CHECK( STORER(R1, R0, 0) == 0x3C200000 );
+    CHECK( STORER(R0, R0, 0) == 0x3C000000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, storer_instruction_encoded_base_register_correctly)
+{
+    CHECK( STORER(R0, R31, 0) == 0x3C1F0000 );
+    CHECK( STORER(R0, R16, 0) == 0x3C100000 );
+    CHECK( STORER(R0, R1, 0) == 0x3C010000 );
+    CHECK( STORER(R0, R0, 0) == 0x3C000000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, storer_instruction_encoded_zero_offset_correctly)
+{
+    CHECK( STORER(R0, R0, 0) == 0x3C000000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, storer_instruction_encoded_negative_one_offset_correctly)
+{
+    CHECK( STORER(R0, R0, -1) == 0x3C00FFFF );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, storer_instruction_encoded_max_negative_offset_correctly)
+{
+    //offset for base+offset instructions is 16 bits, so most negative value is -32768
+    CHECK( STORER(R0, R0, -32768) == 0x3C008000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, storer_instruction_encoded_positive_one_offset_correctly)
+{
+    //offset for base+offset instructions is 16 bits, so most negative value is -32768
+    CHECK( STORER(R0, R0, 1) == 0x3C000001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, storer_instruction_encoded_max_positive_offset_correctly)
+{
+    //offset for base+offset instructions is 16 bits, so most negative value is 32767
+    CHECK( STORER(R0, R0, 32767) == 0x3C007FFF );
+}
+
+
 //AND instruction tests
 
 TEST(PREPROCESSOR_ASSEMBLER_TESTS, and_instruction_encoded_destination_register_correctly)

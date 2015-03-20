@@ -30,6 +30,10 @@
 #define OPCODE_LOADR    (0x0C)
 #define OPCODE_LOADA    (0x0D)
 
+#define OPCODE_STORE    (0x0E)
+#define OPCODE_STORER   (0x0F)
+
+
 //AUXILIARY BITS: Additional bits that are needed for proper instruction encoding
 //e.g. immediate mode flag bits, branch condition bits, &c.
 
@@ -82,6 +86,9 @@
 #define LOAD(destination_reg, pc_relative_offset)                           PC_RELATIVE(OPCODE_LOAD, destination_reg, pc_relative_offset)
 #define LOADR(destination_reg, base_reg, offset)                            BASE_PLUS_OFFSET(OPCODE_LOADR, destination_reg, base_reg, offset)
 #define LOADA(destination_reg, pc_relative_offset)                          PC_RELATIVE(OPCODE_LOADA, destination_reg, pc_relative_offset)
+
+#define STORE(source_reg, pc_relative_offset)                               PC_RELATIVE(OPCODE_STORE, source_reg, pc_relative_offset)
+#define STORER(source_reg, base_reg, offset)                                BASE_PLUS_OFFSET(OPCODE_STORER, source_reg, base_reg, offset)
 
 
 #endif // __PREPROCESSOR_ASSEMBLER_H_
