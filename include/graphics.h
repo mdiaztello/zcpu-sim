@@ -17,5 +17,6 @@ void graphics_update(graphics_t* graphics, uint32_t pixel_address, uint32_t RGBA
 //renders the frame buffer contents to the screen
 void graphics_draw(graphics_t* graphics);
 void graphics_reset(graphics_t* graphics);
+void graphics_cycle(graphics_t* graphics, memory_bus_t* bus);
 
 #endif //__GRAPHICS_H_

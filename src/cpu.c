@@ -125,7 +125,7 @@ static uint32_t get_pc_relative_offset(cpu_t* cpu)
 
 static uint32_t* get_base_reg(cpu_t* cpu)
 {
-    uint32_t reg_name = (cpu->IR & 0x03E00000) >> 26;
+    uint32_t reg_name = (cpu->IR & (0x1F << 16) ) >> 16;
     return &cpu->registers[reg_name];
 }
 
@@ -137,7 +137,6 @@ static uint32_t get_base_register_offset(cpu_t* cpu)
 
 static void fetch1(cpu_t* cpu)
 {
-    beacon();
     pipeline_stage = FETCH2;
     cpu->MAR = cpu->PC;
     update_pc(cpu);
@@ -148,7 +147,6 @@ static void fetch1(cpu_t* cpu)
 
 static void fetch2(cpu_t* cpu)
 {
-    beacon();
     if(bus_is_device_ready(cpu->bus))
     {
         pipeline_stage = DECODE;
@@ -166,7 +164,6 @@ static void fetch2(cpu_t* cpu)
 
 static void decode(cpu_t* cpu)
 {
-    beacon();
     cpu->opcode = get_opcode(cpu);
     //we don't know what kind of instruction we have yet, but we can speculatively 
     //gather other information like source registers and what not because during
@@ -204,7 +201,6 @@ static void decode(cpu_t* cpu)
 
 static void memory1(cpu_t* cpu)
 {
-    beacon();
     //implementing loads first
     //FIXME This stuff probably won't work for storing
     pipeline_stage = MEMORY2;
@@ -217,7 +213,7 @@ static void memory1(cpu_t* cpu)
     else //base register + offset
     {
         //FIXME: sign extend offset to handle negative offsets?
-        cpu->MAR = cpu->base_reg + sign_extend_base_offset(cpu->base_register_offset_bits);
+        cpu->MAR = *cpu->base_reg + sign_extend_base_offset(cpu->base_register_offset_bits);
     }
 
     bus_enable(cpu->bus);
@@ -236,7 +232,6 @@ static void memory1(cpu_t* cpu)
 
 static void memory2(cpu_t* cpu)
 {
-    beacon();
     if(bus_is_device_ready(cpu->bus))
     {
         bus_clear_device_ready(cpu->bus);
@@ -264,7 +259,6 @@ static void memory2(cpu_t* cpu)
 
 static void execute(cpu_t* cpu)
 {
-    beacon();
     cpu_op instruction = get_instruction(cpu);
     instruction(cpu);
     pipeline_stage = FETCH1;
@@ -353,13 +347,7 @@ void cpu_cycle(cpu_t* cpu)
         cpu->instruction_finished = false;
     }
 
-
-    //fetch(cpu);
-    //decode(cpu);
-    //execute(cpu);
-    //write_back(cpu);
-
-    //dump_cpu_state(cpu);
+    printf("the PC is now %08x\n", cpu->PC);
 }
 
 bool cpu_completed_instruction(cpu_t* cpu)

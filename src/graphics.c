@@ -13,8 +13,9 @@
 
 // include any SDL stuff here
 #include "SDL.h"
-#include "graphics.h"
 #include "memory_bus.h"
+#include "graphics.h"
+#include "memory_map.h"
 
 struct graphics_t 
 {
@@ -35,7 +36,7 @@ struct graphics_t
 static void init_window(graphics_t* graphics);
 static void program_failure(void);
 
-static void change_color(graphics_t* graphics, uint32_t pixel_value);
+//static void change_color(graphics_t* graphics, uint32_t pixel_value);
 static void clear_screen(graphics_t* graphics);
 
 //creates our display for the program and initializes the frame buffer and the
@@ -72,12 +73,13 @@ void graphics_destroy(graphics_t* graphics)
 
 void graphics_update(graphics_t* graphics, uint32_t pixel_address, uint32_t RGBA_pixel)
 {
+    uint32_t index = pixel_address - GRAPHICS_REGION_START;
     //FIXME: eventually need double-buffering
     int pitch = graphics->WINDOW_WIDTH*sizeof(uint32_t);
     SDL_LockTexture(graphics->screen, NULL, (void**) &(graphics->frame_buffer), &pitch);
-    //graphics->frame_buffer[pixel_address] = RGBA_pixel;
-    change_color(graphics, 0x00FF00FF);
+    graphics->frame_buffer[index] = RGBA_pixel;
     SDL_UnlockTexture(graphics->screen);
+    printf("the pixel color is %08X\n", RGBA_pixel);
 }
 
 
@@ -95,7 +97,6 @@ static void program_failure(void)
 
 static void init_window(graphics_t* graphics)
 {
-    printf("init_window started\n");
     int init_error = SDL_Init(SDL_INIT_VIDEO);
     if(init_error)
     {
@@ -133,8 +134,9 @@ static void init_window(graphics_t* graphics)
         program_failure();
     }
 
-    printf("init_window finished\n");
 }
+
+#if 0
 
 //this is just a little function to help me debug this code; it just fills the
 //framebuffer with the requested RGBA encoded pixel value
@@ -148,6 +150,7 @@ static void change_color(graphics_t* graphics, uint32_t pixel_value)
         }
     }
 }
+#endif
 
 static void clear_screen(graphics_t* graphics)
 {
@@ -160,7 +163,6 @@ void graphics_draw(graphics_t* graphics)
     clear_screen(graphics);
 
     //"blit" the framebuffer to the screen using SDL 2.0 GPU magic
-    graphics_update(graphics, 0, 0);
     int pitch = graphics->WINDOW_WIDTH*sizeof(uint32_t);
     SDL_UpdateTexture(graphics->screen, NULL, graphics->frame_buffer, pitch);
     SDL_RenderCopy(graphics->renderer, graphics->screen, NULL, NULL);

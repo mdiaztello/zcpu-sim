@@ -57,43 +57,74 @@ uint32_t program[PROGRAM_LENGTH] = {
 };
 #endif
 
+#if 0
 //check the LOADA instructions
 uint32_t program[PROGRAM_LENGTH] = {
     LOADA(R0, 0x1100)
 };
+#endif
+
+//check writing to the framebuffer
+#define FRAME_BUFFER_START (0x1100)
+#define BLUE (0x0000FFFF)
+uint32_t program[PROGRAM_LENGTH] = {
+    LOADA(R1, FRAME_BUFFER_START),
+    OR_IMMEDIATE(R2, R2, BLUE),
+    STORER(R2, R1, (0*640+320)),
+    STORER(R2, R1, (0*640+321)),
+    STORER(R2, R1, (0*640+322)),
+    STORER(R2, R1, (0*640+323)),
+    STORER(R2, R1, (0*640+324)),
+    STORER(R2, R1, (0*640+325)),
+    STORER(R2, R1, (1*640+320)),
+    STORER(R2, R1, (1*640+321)),
+    STORER(R2, R1, (1*640+322)),
+    STORER(R2, R1, (1*640+323)),
+    STORER(R2, R1, (1*640+324)),
+    STORER(R2, R1, (1*640+325)),
+    STORER(R2, R1, (2*640+320)),
+    STORER(R2, R1, (2*640+321)),
+    STORER(R2, R1, (2*640+322)),
+    STORER(R2, R1, (2*640+323)),
+    STORER(R2, R1, (2*640+324)),
+    STORER(R2, R1, (2*640+325)),
+    STORER(R2, R1, (3*640+320)),
+    STORER(R2, R1, (3*640+321)),
+    STORER(R2, R1, (3*640+322)),
+    STORER(R2, R1, (3*640+323)),
+    STORER(R2, R1, (3*640+324)),
+    STORER(R2, R1, (3*640+325)),
+    STORER(R2, R1, (4*640+320)),
+    STORER(R2, R1, (4*640+321)),
+    STORER(R2, R1, (4*640+322)),
+    STORER(R2, R1, (4*640+323)),
+    STORER(R2, R1, (4*640+324)),
+    STORER(R2, R1, (4*640+325)),
+    STORER(R2, R1, (5*640+320)),
+    STORER(R2, R1, (5*640+321)),
+    STORER(R2, R1, (5*640+322)),
+    STORER(R2, R1, (5*640+323)),
+    STORER(R2, R1, (5*640+324)),
+    STORER(R2, R1, (5*640+325)),
+};
+#undef FRAME_BUFFER_START
+#undef BLUE
+
 
 int main(void)
 {
     computer_t* computer = build_computer();
     computer_load_program(computer, program, PROGRAM_LENGTH);
 
-#if 0
-    computer_single_step(computer);
-    computer_print_elapsed_cycles(computer);
-    computer_single_step(computer);
-    computer_print_elapsed_cycles(computer);
-    computer_single_step(computer);
-    computer_print_elapsed_cycles(computer);
-    computer_single_step(computer);
-    computer_print_elapsed_cycles(computer);
+    for(int i = 0; i< 20; i++)
+    {
+        computer_single_step(computer);
+        computer_print_elapsed_cycles(computer);
+        dump_computer_cpu_state(computer);
+        dump_computer_memory(computer, 0x00, 0x10);
+    }
 
-    dump_computer_cpu_state(computer);
-    dump_computer_memory(computer, 0x00, 0x10);
-#endif
-
-    computer_single_step(computer);
-    computer_print_elapsed_cycles(computer);
-#if 0
-    computer_single_step(computer);
-    computer_print_elapsed_cycles(computer);
-    computer_single_step(computer);
-    computer_print_elapsed_cycles(computer);
-#endif
-
-    dump_computer_cpu_state(computer);
-    dump_computer_memory(computer, 0x00, 0x10);
-
-    //computer_run(computer);
+    computer_run(computer);
 
     quit_simulation();
 

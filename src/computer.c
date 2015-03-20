@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <inttypes.h>
 
 
 bool simulation_running = false;
@@ -61,7 +62,6 @@ computer_t* build_computer(void)
     memory_t* RAM = make_memory(NUM_MEM_LOCATIONS);
     //DEBUG
     graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    //graphics_t* display = NULL;
     keyboard_t* keyboard = create_keyboard();
     computer_t* computer = make_computer(cpu, RAM, bus, display, keyboard);
     computer_reset(computer);
@@ -95,6 +95,7 @@ void computer_single_step(computer_t* computer)
         cpu_cycle(computer->cpu);
         bus_cycle(computer->bus);
         memory_cycle(computer->RAM, computer->bus);
+        graphics_cycle(computer->screen, computer->bus);
         computer->elapsed_cycles++;
     }
     while(!cpu_completed_instruction(computer->cpu));
@@ -126,7 +127,7 @@ void dump_computer_memory(computer_t* computer, size_t starting_address, size_t 
 
 void computer_print_elapsed_cycles(computer_t* computer)
 {
-    printf("the number of elapsed cycles is now %d\n", computer->elapsed_cycles);
+    printf("the number of elapsed cycles is now %" PRIu64 "\n", computer->elapsed_cycles);
 }
 
 
