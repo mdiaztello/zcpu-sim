@@ -21,18 +21,31 @@
 #define BASE_PLUS_OFFSET(op, reg, base, imm16)  (((op) << 26) | ((reg) << 21) | ((base) << 16) | (GET_BOTTOM_BITS((imm16), 16)))
 
 //OPCODES
+//ALU operations
 #define OPCODE_AND      (0x00)
 #define OPCODE_OR       (0x01)
 #define OPCODE_NOT      (0x02)
+#define OPCODE_XOR      (0x03)
+#define OPCODE_ADD      (0x04)
+#define OPCODE_SUB      (0x05)
+#define OPCODE_MUL      (0x06)
+#define OPCODE_DIV      (0x07)
+#define OPCODE_COMPARE  (0x08)
+#define OPCODE_SHIFTL   (0x09)
+#define OPCODE_SHIFTR   (0x0A)
 
-
+//Load instructions
 #define OPCODE_LOAD     (0x0B)
 #define OPCODE_LOADR    (0x0C)
 #define OPCODE_LOADA    (0x0D)
 
+//store instructions
 #define OPCODE_STORE    (0x0E)
 #define OPCODE_STORER   (0x0F)
 
+//Branch instructions
+
+//Jump instructions
 
 //AUXILIARY BITS: Additional bits that are needed for proper instruction encoding
 //e.g. immediate mode flag bits, branch condition bits, &c.
@@ -74,7 +87,7 @@
 #define R30 (0x1E)
 #define R31 (0x1F)
 
-//INSTRUCTIONS
+//INSTRUCTIONS: USE THESE MACROS TO WRITE YOUR ASM PROGRAMS
 
 #define AND(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_AND, destination_reg, source_reg1, source_reg2)
 #define AND_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_AND, destination_reg, source_reg, immediate_value_15_bits)
@@ -82,6 +95,12 @@
 #define OR_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits)  IMMEDIATE_OP(OPCODE_OR, destination_reg, source_reg, immediate_value_15_bits)
 //the bottom 16 bits of "NOT" are not used, so we don't care about their value
 #define NOT(destination_reg, source_reg)                                    REGISTER_OP(OPCODE_NOT, destination_reg, source_reg, 0x00)
+#define XOR(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_XOR, destination_reg, source_reg1, source_reg2)
+#define XOR_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_XOR, destination_reg, source_reg, immediate_value_15_bits)
+#define ADD(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_ADD, destination_reg, source_reg1, source_reg2)
+#define ADD_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_ADD, destination_reg, source_reg, immediate_value_15_bits)
+#define SUB(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_SUB, destination_reg, source_reg1, source_reg2)
+#define SUB_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_SUB, destination_reg, source_reg, immediate_value_15_bits)
 
 #define LOAD(destination_reg, pc_relative_offset)                           PC_RELATIVE(OPCODE_LOAD, destination_reg, pc_relative_offset)
 #define LOADR(destination_reg, base_reg, offset)                            BASE_PLUS_OFFSET(OPCODE_LOADR, destination_reg, base_reg, offset)

@@ -378,3 +378,178 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, not_instruction_encoded_source_register_corre
     CHECK( NOT(R0, R16) == 0x08100000 );
     CHECK( NOT(R0, R31) == 0x081F0000 );
 }
+
+
+//XOR instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_instruction_encoded_destination_register_correctly)
+{
+    CHECK( XOR(R0, R0, R0) == 0x0C000000 );
+    CHECK( XOR(R1, R0, R0) == 0x0C200000 );
+    CHECK( XOR(R16, R0, R0) == 0x0E000000 );
+    CHECK( XOR(R31, R0, R0) == 0x0FE00000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_instruction_encoded_first_source_register_correctly)
+{
+    CHECK( XOR(R0, R0, R0) == 0x0C000000 );
+    CHECK( XOR(R0, R1, R0) == 0x0C010000 );
+    CHECK( XOR(R0, R16, R0) == 0x0C100000 );
+    CHECK( XOR(R0, R31, R0) == 0x0C1F0000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_instruction_encoded_second_source_register_correctly)
+{
+    CHECK( XOR(R0, R0, R0) == 0x0C000000 );
+    CHECK( XOR(R0, R0, R1) == 0x0C000800 );
+    CHECK( XOR(R0, R0, R16) == 0x0C008000 );
+    CHECK( XOR(R0, R0, R31) == 0x0C00F800 );
+}
+
+//ADD_IMMEDIATE instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_immediate_instruction_encoded_destination_register_correctly)
+{
+    CHECK( XOR_IMMEDIATE(R0, R0, 0) == 0x0C000001 );
+    CHECK( XOR_IMMEDIATE(R1, R0, 0) == 0x0C200001 );
+    CHECK( XOR_IMMEDIATE(R16, R0, 0) == 0x0E000001 );
+    CHECK( XOR_IMMEDIATE(R31, R0, 0) == 0x0FE00001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_immediate_instruction_encoded_first_source_register_correctly)
+{
+    CHECK( XOR_IMMEDIATE(R0, R0, 0) == 0x0C000001 );
+    CHECK( XOR_IMMEDIATE(R0, R1, 0) == 0x0C010001 );
+    CHECK( XOR_IMMEDIATE(R0, R16, 0) == 0x0C100001 );
+    CHECK( XOR_IMMEDIATE(R0, R31, 0) == 0x0C1F0001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_immediate_instruction_encoded_immediate_value_correctly)
+{
+    //immediate 0 value
+    CHECK( XOR_IMMEDIATE(R0, R0, 0) == 0x0C000001 );
+    //immediate -1 value
+    CHECK( XOR_IMMEDIATE(R0, R0, -1) == 0x0C00FFFF );
+    //immediate most negative
+    CHECK( XOR_IMMEDIATE(R0, R0, -16384) == 0x0C008001 );
+    //immediate most positive
+    CHECK( XOR_IMMEDIATE(R0, R0, 16383) == 0x0C007FFF );
+    //only use 15 bit immediate value
+    CHECK( XOR_IMMEDIATE(R0, R0, 0x0FFF4000) == 0x0C008001 );
+}
+
+//ADD instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, add_instruction_encoded_destination_register_correctly)
+{
+    CHECK( ADD(R0, R0, R0) == 0x10000000 );
+    CHECK( ADD(R1, R0, R0) == 0x10200000 );
+    CHECK( ADD(R16, R0, R0) == 0x12000000 );
+    CHECK( ADD(R31, R0, R0) == 0x13E00000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, add_instruction_encoded_first_source_register_correctly)
+{
+    CHECK( ADD(R0, R0, R0) == 0x10000000 );
+    CHECK( ADD(R0, R1, R0) == 0x10010000 );
+    CHECK( ADD(R0, R16, R0) == 0x10100000 );
+    CHECK( ADD(R0, R31, R0) == 0x101F0000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, add_instruction_encoded_second_source_register_correctly)
+{
+    CHECK( ADD(R0, R0, R0) == 0x10000000 );
+    CHECK( ADD(R0, R0, R1) == 0x10000800 );
+    CHECK( ADD(R0, R0, R16) == 0x10008000 );
+    CHECK( ADD(R0, R0, R31) == 0x1000F800 );
+}
+
+//ADD_IMMEDIATE instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, add_immediate_instruction_encoded_destination_register_correctly)
+{
+    CHECK( ADD_IMMEDIATE(R0, R0, 0) == 0x10000001 );
+    CHECK( ADD_IMMEDIATE(R1, R0, 0) == 0x10200001 );
+    CHECK( ADD_IMMEDIATE(R16, R0, 0) == 0x12000001 );
+    CHECK( ADD_IMMEDIATE(R31, R0, 0) == 0x13E00001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, add_immediate_instruction_encoded_first_source_register_correctly)
+{
+    CHECK( ADD_IMMEDIATE(R0, R0, 0) == 0x10000001 );
+    CHECK( ADD_IMMEDIATE(R0, R1, 0) == 0x10010001 );
+    CHECK( ADD_IMMEDIATE(R0, R16, 0) == 0x10100001 );
+    CHECK( ADD_IMMEDIATE(R0, R31, 0) == 0x101F0001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, add_immediate_instruction_encoded_immediate_value_correctly)
+{
+    //immediate 0 value
+    CHECK( ADD_IMMEDIATE(R0, R0, 0) == 0x10000001 );
+    //immediate -1 value
+    CHECK( ADD_IMMEDIATE(R0, R0, -1) == 0x1000FFFF );
+    //immediate most negative
+    CHECK( ADD_IMMEDIATE(R0, R0, -16384) == 0x10008001 );
+    //immediate most positive
+    CHECK( ADD_IMMEDIATE(R0, R0, 16383) == 0x10007FFF );
+    //only use 15 bit immediate value
+    CHECK( ADD_IMMEDIATE(R0, R0, 0x0FFF4000) == 0x10008001 );
+}
+
+//SUB instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, sub_instruction_encoded_destination_register_correctly)
+{
+    CHECK( SUB(R0, R0, R0) == 0x14000000 );
+    CHECK( SUB(R1, R0, R0) == 0x14200000 );
+    CHECK( SUB(R16, R0, R0) == 0x16000000 );
+    CHECK( SUB(R31, R0, R0) == 0x17E00000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, sub_instruction_encoded_first_source_register_correctly)
+{
+    CHECK( SUB(R0, R0, R0) == 0x14000000 );
+    CHECK( SUB(R0, R1, R0) == 0x14010000 );
+    CHECK( SUB(R0, R16, R0) == 0x14100000 );
+    CHECK( SUB(R0, R31, R0) == 0x141F0000 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, sub_instruction_encoded_second_source_register_correctly)
+{
+    CHECK( SUB(R0, R0, R0) == 0x14000000 );
+    CHECK( SUB(R0, R0, R1) == 0x14000800 );
+    CHECK( SUB(R0, R0, R16) == 0x14008000 );
+    CHECK( SUB(R0, R0, R31) == 0x1400F800 );
+}
+
+//SUB_IMMEDIATE instruction tests
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, sub_immediate_instruction_encoded_destination_register_correctly)
+{
+    CHECK( SUB_IMMEDIATE(R0, R0, 0) == 0x14000001 );
+    CHECK( SUB_IMMEDIATE(R1, R0, 0) == 0x14200001 );
+    CHECK( SUB_IMMEDIATE(R16, R0, 0) == 0x16000001 );
+    CHECK( SUB_IMMEDIATE(R31, R0, 0) == 0x17E00001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, sub_immediate_instruction_encoded_first_source_register_correctly)
+{
+    CHECK( SUB_IMMEDIATE(R0, R0, 0) == 0x14000001 );
+    CHECK( SUB_IMMEDIATE(R0, R1, 0) == 0x14010001 );
+    CHECK( SUB_IMMEDIATE(R0, R16, 0) == 0x14100001 );
+    CHECK( SUB_IMMEDIATE(R0, R31, 0) == 0x141F0001 );
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, sub_immediate_instruction_encoded_immediate_value_correctly)
+{
+    //immediate 0 value
+    CHECK( SUB_IMMEDIATE(R0, R0, 0) == 0x14000001 );
+    //immediate -1 value
+    CHECK( SUB_IMMEDIATE(R0, R0, -1) == 0x1400FFFF );
+    //immediate most negative
+    CHECK( SUB_IMMEDIATE(R0, R0, -16384) == 0x14008001 );
+    //immediate most positive
+    CHECK( SUB_IMMEDIATE(R0, R0, 16383) == 0x14007FFF );
+    //only use 15 bit immediate value
+    CHECK( SUB_IMMEDIATE(R0, R0, 0x0FFF4000) == 0x14008001 );
+}
