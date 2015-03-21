@@ -45,25 +45,37 @@ static cpu_op get_instruction(cpu_t* cpu);
 static uint32_t get_pc_relative_offset(cpu_t* cpu);
 static uint32_t* get_base_reg(cpu_t* cpu);
 
-static uint32_t sign_extend_pc_relative_offset(uint32_t pc_relative_offset)
+//as the name implies, it sign-extends the given value, of the given width, to 32-bits
+static uint32_t sign_extend(uint32_t original_value, uint8_t original_value_width)
 {
-    uint32_t result = pc_relative_offset;
-    if(pc_relative_offset >> 20)
+    uint32_t result = original_value;
+    uint32_t MASK = (0xFFFFFFFF);
+    if(original_value >> (original_value_width -1))
     {
-        result |= 0xFFE00000;
+        MASK = MASK - ((1 << original_value_width) -1);
+        result = MASK | result;
     }
     return result;
 }
 
+//sign-extend the 26-bit pc-relative offset for jump instructions
+static uint32_t sign_extend_jump_pc_relative_offset(uint32_t pc_relative_offset)
+{
+    return sign_extend(pc_relative_offset, 26);
+}
+
+//sign-extend the 21-bit pc-relative offset for load/store instructions
+static uint32_t sign_extend_pc_relative_offset(uint32_t pc_relative_offset)
+{
+    return sign_extend(pc_relative_offset, 21);
+}
+
+//sign-extend the 16-bit offset for base + register type instructions
 static uint32_t sign_extend_base_offset(uint32_t base_register_offset)
 {
-    uint32_t result = base_register_offset;
-    if(base_register_offset >> 15)
-    {
-        result |= 0xFFFF0000;
-    }
-    return result;
+    return sign_extend(base_register_offset, 16);
 }
+
 
 static void install_opcodes(cpu_t* cpu)
 {
@@ -135,6 +147,13 @@ static uint32_t get_base_register_offset(cpu_t* cpu)
     return (cpu->IR & 0x0000FFFF);
 }
 
+//get the 26-bit pc-relative offset for the jump instruction
+static uint32_t get_jump_pc_offset(cpu_t* cpu)
+{
+    return (cpu->IR & 0x03FFFFFF);
+}
+
+
 static void fetch1(cpu_t* cpu)
 {
     pipeline_stage = FETCH2;
@@ -176,9 +195,10 @@ static void decode(cpu_t* cpu)
     cpu->store_source_reg = get_store_source_reg(cpu);
     cpu->immediate_mode = get_immediate_mode_flag(cpu);
     cpu->ALU_immediate_bits = get_ALU_immediate_bits(cpu);
-    cpu->pc_relative_offset_bits = get_pc_relative_offset(cpu);
+    cpu->pc_relative_offset_bits = sign_extend_pc_relative_offset(get_pc_relative_offset(cpu));
     cpu->base_reg = get_base_reg(cpu);
-    cpu->base_register_offset_bits = get_base_register_offset(cpu);
+    cpu->base_register_offset_bits = sign_extend_base_offset(get_base_register_offset(cpu));
+    cpu->jump_pc_relative_offset_bits = sign_extend_jump_pc_relative_offset(get_jump_pc_offset(cpu));
     //load/store instructions get special treatment in our FSM
     if(is_memory_instruction(cpu->opcode))
     {
@@ -201,19 +221,15 @@ static void decode(cpu_t* cpu)
 
 static void memory1(cpu_t* cpu)
 {
-    //implementing loads first
-    //FIXME This stuff probably won't work for storing
     pipeline_stage = MEMORY2;
     if(is_pc_relative_instruction(cpu->opcode))
     {
-        //FIXME: sign extend offset to handle negative offsets?
-        cpu->MAR = cpu->PC + sign_extend_pc_relative_offset(cpu->pc_relative_offset_bits);
-        printf("the PC is %08x, the offset is %08x, the MAR is %08x\n", cpu->PC, sign_extend_pc_relative_offset(cpu->pc_relative_offset_bits), cpu->MAR);
+        cpu->MAR = cpu->PC + cpu->pc_relative_offset_bits;
+        printf("the PC is %08x, the offset is %08x, the MAR is %08x\n", cpu->PC, cpu->pc_relative_offset_bits, cpu->MAR);
     }
     else //base register + offset
     {
-        //FIXME: sign extend offset to handle negative offsets?
-        cpu->MAR = *cpu->base_reg + sign_extend_base_offset(cpu->base_register_offset_bits);
+        cpu->MAR = *cpu->base_reg + cpu->base_register_offset_bits;
     }
 
     bus_enable(cpu->bus);

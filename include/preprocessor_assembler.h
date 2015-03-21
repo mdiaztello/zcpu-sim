@@ -19,6 +19,7 @@
 #define IMMEDIATE_OP(op, dest, sr, imm15)       (((op) << 26) | ((dest) << 21) | ((sr) << 16) | (GET_BOTTOM_BITS((imm15), 15) << 1) | IMMEDIATE_MODE)
 #define PC_RELATIVE(op, reg, imm21)             (((op) << 26) | ((reg) << 21) | (GET_BOTTOM_BITS((imm21), 21)))
 #define BASE_PLUS_OFFSET(op, reg, base, imm16)  (((op) << 26) | ((reg) << 21) | ((base) << 16) | (GET_BOTTOM_BITS((imm16), 16)))
+#define JUMP_PC_RELATIVE(op, pc_rel_offset26)   ((op << 26) | (GET_BOTTOM_BITS((pc_rel_offset26), 26)))
 
 //OPCODES
 //ALU operations
@@ -43,9 +44,10 @@
 #define OPCODE_STORE    (0x0E)
 #define OPCODE_STORER   (0x0F)
 
-//Branch instructions
-
 //Jump instructions
+#define OPCODE_JUMP     (0x10)
+
+//Branch instructions
 
 //AUXILIARY BITS: Additional bits that are needed for proper instruction encoding
 //e.g. immediate mode flag bits, branch condition bits, &c.
@@ -91,14 +93,21 @@
 
 #define AND(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_AND, destination_reg, source_reg1, source_reg2)
 #define AND_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_AND, destination_reg, source_reg, immediate_value_15_bits)
+
 #define OR(destination_reg, source_reg1, source_reg2)                       REGISTER_OP(OPCODE_OR, destination_reg, source_reg1, source_reg2)
 #define OR_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits)  IMMEDIATE_OP(OPCODE_OR, destination_reg, source_reg, immediate_value_15_bits)
+
 //the bottom 16 bits of "NOT" are not used, so we don't care about their value
 #define NOT(destination_reg, source_reg)                                    REGISTER_OP(OPCODE_NOT, destination_reg, source_reg, 0x00)
+
 #define XOR(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_XOR, destination_reg, source_reg1, source_reg2)
 #define XOR_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_XOR, destination_reg, source_reg, immediate_value_15_bits)
+//a useful mnemonic to have for clearing a register
+#define CLEAR(reg)                                                          XOR(reg, reg, reg)
+
 #define ADD(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_ADD, destination_reg, source_reg1, source_reg2)
 #define ADD_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_ADD, destination_reg, source_reg, immediate_value_15_bits)
+
 #define SUB(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_SUB, destination_reg, source_reg1, source_reg2)
 #define SUB_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_SUB, destination_reg, source_reg, immediate_value_15_bits)
 
@@ -108,6 +117,10 @@
 
 #define STORE(source_reg, pc_relative_offset)                               PC_RELATIVE(OPCODE_STORE, source_reg, pc_relative_offset)
 #define STORER(source_reg, base_reg, offset)                                BASE_PLUS_OFFSET(OPCODE_STORER, source_reg, base_reg, offset)
+
+#define JUMP(pc_relative_offset)                                            JUMP_PC_RELATIVE(OPCODE_JUMP, pc_relative_offset)
+//The venerable Halt-catch-fire instruction!
+#define HCF                                                                 JUMP(-1)    //spin forever
 
 
 #endif // __PREPROCESSOR_ASSEMBLER_H_

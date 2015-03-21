@@ -553,3 +553,22 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, sub_immediate_instruction_encoded_immediate_v
     //only use 15 bit immediate value
     CHECK( SUB_IMMEDIATE(R0, R0, 0x0FFF4000) == 0x14008001 );
 }
+
+//JUMP instruction tests
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, jump_pc_relative_encodes_offsets_correctly)
+{
+    //zero offset
+    CHECK( JUMP(0x00) == 0x40000000 )
+
+    //-1 offset
+    CHECK( JUMP(-1) == 0x43FFFFFF )
+
+    //most negative offset (-2^25 == -33554432)
+    CHECK( JUMP(-33554432) == 0x42000000 )
+
+    //highest positive offset (2^25 - 1 == 33554431)
+    CHECK( JUMP(33554431) == 0x41FFFFFF )
+
+    //offset limited to lower 26-bits of argument
+    CHECK( JUMP(0x72000000) == 0x42000000 )
+}

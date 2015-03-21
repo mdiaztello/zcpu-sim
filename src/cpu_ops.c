@@ -123,6 +123,11 @@ void cpu_load_effective_address(cpu_t* cpu)
     *cpu->destination_reg1 = cpu->PC + cpu->pc_relative_offset_bits;
 }
 
+void cpu_jump_pc_relative(cpu_t* cpu)
+{
+    cpu->PC = cpu->PC + cpu->jump_pc_relative_offset_bits;
+}
+
 void cpu_nop(cpu_t* cpu)
 {
     beacon();
@@ -136,7 +141,7 @@ static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
     &cpu_and, &cpu_or, &cpu_not, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
-    &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_jump_pc_relative, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,

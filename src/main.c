@@ -65,6 +65,7 @@ uint32_t program[PROGRAM_LENGTH] = {
 #endif
 
 //check writing to the framebuffer
+//by writing a 6x6 blue square
 #define FRAME_BUFFER_START (0x1100)
 #define BLUE (0x0000FFFF)
 uint32_t program[PROGRAM_LENGTH] = {
@@ -106,9 +107,27 @@ uint32_t program[PROGRAM_LENGTH] = {
     STORER(R2, R1, (5*640+323)),
     STORER(R2, R1, (5*640+324)),
     STORER(R2, R1, (5*640+325)),
+    HCF
 };
 #undef FRAME_BUFFER_START
 #undef BLUE
+
+#if 0
+
+//FIXME: this little program is incomplete. We can't clear the framebuffer
+//without first adding branch instructions and the add instruction
+//clear the framebuffer to white
+#define FRAME_BUFFER_START (0x1100 - 1)
+uint32_t program[PROGRAM_LENGTH] = {
+    LOADA(R1, FRAME_BUFFER_START),
+    CLEAR(R2),
+    NOT(R2, R2),
+    STORER(R2, R1, (0*640+320)),
+    HCF
+}
+#undef FRAME_BUFFER_START
+
+#endif
 
 
 int main(void)
@@ -116,6 +135,7 @@ int main(void)
     computer_t* computer = build_computer();
     computer_load_program(computer, program, PROGRAM_LENGTH);
 
+#if 0
     for(int i = 0; i< 20; i++)
     {
         computer_single_step(computer);
@@ -123,6 +143,7 @@ int main(void)
         dump_computer_cpu_state(computer);
         dump_computer_memory(computer, 0x00, 0x10);
     }
+#endif
 
     computer_run(computer);
 

@@ -38,6 +38,7 @@ struct cpu
     uint32_t ALU_immediate_bits; // only the lower 15 bits of this field are taken from the instruction
 
     uint32_t pc_relative_offset_bits; //a 21-bit offset field that will be added to the PC to get our target address
+    uint32_t jump_pc_relative_offset_bits;   //a 26-bit offset field for PC relative jump instructions
 
     uint32_t* base_reg;                 //the register we will use for base + offset style loads/stores/jumps/branches
     uint32_t base_register_offset_bits; //the offset bits that will be added to our base register for base + offset style instructions
