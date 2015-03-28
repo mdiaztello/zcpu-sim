@@ -15,7 +15,7 @@ SRC_DIRS = src
 TEST_SRC_DIRS = tests
 MOCKS_SRC_DIRS = mocks
 
-SDL_LIB = -lSDL2
+SDL_LIB = `sdl2-config --libs`
 SDL_INCLUDE = /usr/include/SDL2/
 
 INCLUDE_DIRS =\
@@ -50,7 +50,7 @@ CFLAGS := -Wall -Wextra -std=c99
 LDFLAGS = $(SDL_LIB)
 
 simulator: $(OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LDFLAGS) 
 
 
 .PHONY: my_clean
