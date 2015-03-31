@@ -64,6 +64,7 @@ uint32_t program[PROGRAM_LENGTH] = {
 };
 #endif
 
+#if 0
 //check writing to the framebuffer
 //by writing a 6x6 blue square
 #define FRAME_BUFFER_START (0x1100)
@@ -111,6 +112,7 @@ uint32_t program[PROGRAM_LENGTH] = {
 };
 #undef FRAME_BUFFER_START
 #undef BLUE
+#endif
 
 #if 0
 
@@ -130,22 +132,44 @@ uint32_t program[PROGRAM_LENGTH] = {
 #endif
 
 
+//small program to test adding capability by itself
+uint32_t program[PROGRAM_LENGTH] = {
+    CLEAR(R29),
+    ADD_IMMEDIATE(R29, R29, 1),
+    ADD(R29, R29, R29),
+    ADD(R29, R29, R29),
+    ADD(R29, R29, R29),
+    HCF
+};
+
+//throwaway function so I don't have to keep commenting/uncommenting the "run x steps" code
+static void run(computer_t* computer, int num_steps)
+{
+    dump_computer_memory(computer, 0x00, 0x10);
+    if(num_steps < 0)
+    {
+        computer_run(computer);
+    }
+    else
+    {
+        for(int i = 0; i< 20; i++)
+        {
+            computer_single_step(computer);
+            computer_print_elapsed_cycles(computer);
+            dump_computer_cpu_state(computer);
+            printf("\n\n");
+        }
+    }
+}
+
 int main(void)
 {
     computer_t* computer = build_computer();
     computer_load_program(computer, program, PROGRAM_LENGTH);
 
-#if 0
-    for(int i = 0; i< 20; i++)
-    {
-        computer_single_step(computer);
-        computer_print_elapsed_cycles(computer);
-        dump_computer_cpu_state(computer);
-        dump_computer_memory(computer, 0x00, 0x10);
-    }
-#endif
-
-    computer_run(computer);
+    const int RUN_FOREVER = -1;
+    const int num_steps = 8;
+    run(computer, num_steps);
 
     quit_simulation();
 

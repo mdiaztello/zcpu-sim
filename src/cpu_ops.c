@@ -7,6 +7,25 @@
 
 static cpu_op instruction_table[NUM_INSTRUCTIONS];
 
+//sets the condition code bits according to the result of the last ALU operation
+//FIXME: Do I want or need additional condition codes?
+void update_condition_code_bits(cpu_t* cpu, uint32_t result)
+{
+    if(0 == result)
+    {
+        cpu->CCR = (0x00000002); //set zero bit of CCR
+    }
+    else if(result >> 31) //negative result b/c of sign bit
+    {
+        cpu->CCR = 0x00000004; //set negative bit of CCR
+    }
+    else
+    {
+        cpu->CCR = 0x00000001; //set positive bit of CCR
+    }
+
+}
+
 //tells us if the instruction touches memory during execution (i.e. load/store)
 bool is_memory_instruction(uint8_t opcode)
 {
@@ -68,6 +87,8 @@ void cpu_and(cpu_t* cpu)
         *cpu->destination_reg1 = *cpu->source_reg1 & cpu->ALU_immediate_bits;
 
     }
+
+    update_condition_code_bits(cpu, *cpu->destination_reg1);
 }
 
 //  OR: bitwise ORs the contents of sr1 and sr2 and stores them in dr1
@@ -91,6 +112,8 @@ void cpu_or(cpu_t* cpu)
         printf("the immediate-mode value was 0x%08X\n", cpu->ALU_immediate_bits);
         *cpu->destination_reg1 = *cpu->source_reg1 | cpu->ALU_immediate_bits;
     }
+
+    update_condition_code_bits(cpu, *cpu->destination_reg1);
 }
 
 //    NOT: negates contents of sr1 and puts them in dr1
@@ -103,8 +126,15 @@ void cpu_not(cpu_t* cpu)
     *cpu->destination_reg1 = ~(*cpu->source_reg1);
     //printf("source reg = 0x%08X\n", *cpu->source_reg1);
     //printf("destination reg = 0x%08X\n", *cpu->destination_reg1);
+    update_condition_code_bits(cpu, *cpu->destination_reg1);
 }
 
+void cpu_xor(cpu_t* cpu)
+{
+    //FIXME: stub for now
+    message(__FUNCTION__);
+    cpu_nop(cpu);
+}
 
 
 void cpu_load_pc_relative(cpu_t* cpu)
@@ -128,6 +158,35 @@ void cpu_jump_pc_relative(cpu_t* cpu)
     cpu->PC = cpu->PC + cpu->jump_pc_relative_offset_bits;
 }
 
+
+
+//  ADD:
+//      opcode = 000100
+//      e.g. ADD <destination_reg1> <source_reg1> <source_reg2>
+//           6-bits + 5-bits + 5-bits + 5 bits + 11-unused-bits
+//  ADD_IMMEDIATE
+//      opcode = 000100
+//      e.g. ADD <destination_reg1> <source_reg1> <immediatel_val> <immediate-flag>
+//           6-bits + 5-bits + 5-bits + 15-bit-immediate + 1-bit-flag
+
+void cpu_add(cpu_t* cpu)
+{
+    message(__FUNCTION__);
+    if(!cpu->immediate_mode)
+    {
+
+        *cpu->destination_reg1 = *cpu->source_reg1 + *cpu->source_reg2;
+        printf( "DR = %08X SR1 = %08X  SR2 = %08X\n", *cpu->destination_reg1 , *cpu->source_reg1 , *cpu->source_reg2);
+    }
+    else
+    {
+        *cpu->destination_reg1 = *cpu->source_reg1 + cpu->ALU_immediate_bits;
+        printf( "DR = %08X SR1 = %08X  immediate = %08X\n", *cpu->destination_reg1 , *cpu->source_reg1 , cpu->ALU_immediate_bits);
+    }
+
+    update_condition_code_bits(cpu, *cpu->destination_reg1);
+}
+
 void cpu_nop(cpu_t* cpu)
 {
     beacon();
@@ -139,7 +198,7 @@ void cpu_nop(cpu_t* cpu)
 
 static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
-    &cpu_and, &cpu_or, &cpu_not, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_and, &cpu_or, &cpu_not, &cpu_xor, &cpu_add, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
     &cpu_jump_pc_relative, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,

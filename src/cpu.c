@@ -9,6 +9,7 @@
 #include "cpu.h"
 #include "cpu_private.h"
 #include "cpu_ops.h"
+#include "bit_twiddling.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -58,6 +59,11 @@ static uint32_t sign_extend(uint32_t original_value, uint8_t original_value_widt
     return result;
 }
 
+static uint32_t sign_extend_ALU_immediate_bits(uint32_t ALU_bits)
+{
+    return sign_extend(ALU_bits, 16);
+}
+
 //sign-extend the 26-bit pc-relative offset for jump instructions
 static uint32_t sign_extend_jump_pc_relative_offset(uint32_t pc_relative_offset)
 {
@@ -84,29 +90,34 @@ static void install_opcodes(cpu_t* cpu)
 
 static uint32_t get_opcode(cpu_t* cpu)
 {
-    return (cpu->IR & 0xFC000000) >> 26;
+    return GET_BITS_IN_RANGE(cpu->IR, 26, 31);
 }
 
+#warning FIXME!! the source and destination register encodings in the instructions might prove problematic when we add multiplication! Think about how to fix this!
 static uint32_t* get_source_reg1(cpu_t* cpu)
 {
-    uint32_t reg_name = (cpu->IR & 0x000001E0) >> 5;
+    uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 16, 20);
+    printf("SR1 is R%02d\n", reg_name);
     return &cpu->registers[reg_name];
 }
 
 static uint32_t* get_source_reg2(cpu_t* cpu)
 {
-    uint32_t reg_name = (cpu->IR & 0x0000001F);
+    uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 11, 15);
+    printf("SR2 is R%02d\n", reg_name);
     return &cpu->registers[reg_name];
 }
 
 static uint32_t* get_destination_reg1(cpu_t* cpu)
 {
-    uint32_t reg_name = (cpu->IR & (0x1F << 21)) >> 21;
+    uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 21, 25);
+    printf("DR1 is R%02d\n", reg_name);
     return &cpu->registers[reg_name];
 }
 
 static uint32_t* get_destination_reg2(cpu_t* cpu)
 {
+    //FIXME: this destination register 2 encoding is now broken! figure out what I want to do about instruction encoding and multiplication
     uint32_t reg_name = (cpu->IR & (0x1F << 6)) >> 6;
     return &cpu->registers[reg_name];
 }
@@ -194,7 +205,7 @@ static void decode(cpu_t* cpu)
     cpu->destination_reg2 = get_destination_reg2(cpu);
     cpu->store_source_reg = get_store_source_reg(cpu);
     cpu->immediate_mode = get_immediate_mode_flag(cpu);
-    cpu->ALU_immediate_bits = get_ALU_immediate_bits(cpu);
+    cpu->ALU_immediate_bits = sign_extend_ALU_immediate_bits(get_ALU_immediate_bits(cpu));
     cpu->pc_relative_offset_bits = sign_extend_pc_relative_offset(get_pc_relative_offset(cpu));
     cpu->base_reg = get_base_reg(cpu);
     cpu->base_register_offset_bits = sign_extend_base_offset(get_base_register_offset(cpu));
