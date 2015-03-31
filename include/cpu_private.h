@@ -23,6 +23,9 @@ struct cpu
     uint32_t registers[NUM_REGISTERS]; //the general purpose registers for the processor
     uint32_t PC;            //the program counter of the processor
     uint32_t CCR;           //condition codes register
+                            //CCR[0] = last result is positive
+                            //CCR[1] = last result is zero
+                            //CCR[2] = last result is negative
     uint32_t IR;            //instruction register
     uint32_t MDR;           //memory data register
     uint32_t MAR;           //memory address register
