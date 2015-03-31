@@ -406,7 +406,7 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_instruction_encoded_second_source_registe
     CHECK( XOR(R0, R0, R31) == 0x0C00F800 );
 }
 
-//ADD_IMMEDIATE instruction tests
+//XOR_IMMEDIATE instruction tests
 
 TEST(PREPROCESSOR_ASSEMBLER_TESTS, xor_immediate_instruction_encoded_destination_register_correctly)
 {
