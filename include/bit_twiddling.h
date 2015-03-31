@@ -24,16 +24,16 @@
 
 //This macro clears all of the bits between start_bit and end_bit
 #define MULTI_BIT_SET(reg, start_bit, end_bit)  (reg = reg | (GENERATE_MULTIBIT_MASK((end_bit - start_bit)) << start_bit))
-#endif
-
-//This macro gets all of the bits within the specified range between start_bit and end_bit (the value is right-justified)
-#define GET_BITS_IN_RANGE(reg, start_bit, end_bit)  (((reg) & GENERATE_MULTIBIT_MASK(start_bit, end_bit)) >> start_bit)
 
 //This macro writes the requested value between the start and end bits
 #define MULTI_BIT_WRITE_VALUE(reg, value, start_bit, end_bit) do {\
     MULTI_BIT_CLEAR(reg, start_bit, end_bit); \
     (reg = reg | (value << start_bit)); \
 } while(0)
+#endif
+
+//This macro gets all of the bits within the specified range between start_bit and end_bit (the value is right-justified)
+#define GET_BITS_IN_RANGE(reg, start_bit, end_bit)  (((reg) & GENERATE_MULTIBIT_MASK(start_bit, end_bit)) >> start_bit)
 
 #define CHECK_BIT_SET(reg, bit)  (reg & ((1u) << bit))
 #define CHECK_BIT_CLEAR(reg, bit) (! CHECK_BIT_SET(reg, bit) )
