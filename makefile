@@ -57,6 +57,7 @@ simulator: $(OBJ)
 
 my_clean:
 	rm simulator
+	rm $(OBJ)
 
 ctags:
 	ctags src/*.c include/*.h
