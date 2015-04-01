@@ -147,11 +147,14 @@ uint32_t program[PROGRAM_LENGTH] = {
 #endif
 
 
-//small program to test adding capability by itself
+//testing branching with a small loop
 uint32_t program[PROGRAM_LENGTH] = {
-    CLEAR(R29),
-    ADD_IMMEDIATE(R29, R29, -1),
-    BRA(-2)
+    CLEAR(R0),
+    ADD_IMMEDIATE(R0, R0, 10),
+    ADD_IMMEDIATE(R0, R0, -1),
+    BRP(-2),
+    ADD_IMMEDIATE(R0, R0, -1),
+    HCF
 };
 
 //throwaway function so I don't have to keep commenting/uncommenting the "run x steps" code
@@ -164,7 +167,7 @@ static void run(computer_t* computer, int num_steps)
     }
     else
     {
-        for(int i = 0; i< 20; i++)
+        for(int i = 0; i< num_steps; i++)
         {
             computer_single_step(computer);
             computer_print_elapsed_cycles(computer);
@@ -180,7 +183,7 @@ int main(void)
     computer_load_program(computer, program, PROGRAM_LENGTH);
 
     const int RUN_FOREVER = -1;
-    const int num_steps = 5;
+    const int num_steps = 30;
     run(computer, num_steps);
 
     quit_simulation();
