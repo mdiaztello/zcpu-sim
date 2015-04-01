@@ -64,7 +64,9 @@ uint32_t program[PROGRAM_LENGTH] = {
 };
 #endif
 
+
 #if 0
+
 //check writing to the framebuffer
 //by writing a 6x6 blue square
 #define FRAME_BUFFER_START (0x1100)
@@ -131,6 +133,7 @@ uint32_t program[PROGRAM_LENGTH] = {
 
 #endif
 
+#if 0
 
 //small program to test adding capability by itself
 uint32_t program[PROGRAM_LENGTH] = {
@@ -140,6 +143,15 @@ uint32_t program[PROGRAM_LENGTH] = {
     ADD(R29, R29, R29),
     ADD(R29, R29, R29),
     HCF
+};
+#endif
+
+
+//small program to test adding capability by itself
+uint32_t program[PROGRAM_LENGTH] = {
+    CLEAR(R29),
+    ADD_IMMEDIATE(R29, R29, -1),
+    BRA(-2)
 };
 
 //throwaway function so I don't have to keep commenting/uncommenting the "run x steps" code
@@ -168,7 +180,7 @@ int main(void)
     computer_load_program(computer, program, PROGRAM_LENGTH);
 
     const int RUN_FOREVER = -1;
-    const int num_steps = 8;
+    const int num_steps = 5;
     run(computer, num_steps);
 
     quit_simulation();

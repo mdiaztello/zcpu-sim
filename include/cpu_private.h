@@ -40,13 +40,16 @@ struct cpu
     bool immediate_mode;
     uint32_t ALU_immediate_bits; // only the lower 15 bits of this field are taken from the instruction
 
-    uint32_t pc_relative_offset_bits; //a 21-bit offset field that will be added to the PC to get our target address
+    uint32_t load_pc_relative_offset_bits; //a 21-bit offset field that will be added to the PC to get our target address for load instructions
     uint32_t jump_pc_relative_offset_bits;   //a 26-bit offset field for PC relative jump instructions
+    uint32_t branch_pc_relative_offset_bits; //a 23-bit offset field for the PC relative branch instructions
 
     uint32_t* base_reg;                 //the register we will use for base + offset style loads/stores/jumps/branches
     uint32_t base_register_offset_bits; //the offset bits that will be added to our base register for base + offset style instructions
 
     uint32_t* store_source_reg;      //the source register for store instructions
+
+    uint8_t instruction_condition_codes;    //the condition codes extracted from the current instruction (for comparison against the CCR)
 
     //pointer to table of function pointers representing the opcodes goes here
     opcode_table_t* opcodes;

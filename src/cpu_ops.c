@@ -150,7 +150,7 @@ void cpu_load_base_plus_offset(cpu_t* cpu)
 
 void cpu_load_effective_address(cpu_t* cpu)
 {
-    *cpu->destination_reg1 = cpu->PC + cpu->pc_relative_offset_bits;
+    *cpu->destination_reg1 = cpu->PC + cpu->load_pc_relative_offset_bits;
 }
 
 void cpu_jump_pc_relative(cpu_t* cpu)
@@ -158,6 +158,26 @@ void cpu_jump_pc_relative(cpu_t* cpu)
     cpu->PC = cpu->PC + cpu->jump_pc_relative_offset_bits;
 }
 
+// <BRANCH_OPCODE> <condition-flags-to-check> <pc-relative-offset>
+//     6-bits + 3-bits + 23-bits
+// BRANCH_OPCODE = 010001
+// Branching works by comparing the 3 condition codes embedded in the
+// instruction against the condition codes set in the CCR, if any of the
+// condition codes are set, and the corresponding condition code is set in the
+// instruction, the branch will be taken, otherwise the PC will be left in its
+// current (incremented) state
+void cpu_branch(cpu_t* cpu)
+{
+    uint32_t N = (1u << 2) & cpu->instruction_condition_codes;
+    uint32_t Z = (1u << 1) & cpu->instruction_condition_codes;
+    uint32_t P = (1u << 0) & cpu->instruction_condition_codes;
+
+    if((cpu->CCR & N) || (cpu->CCR & Z) || (cpu->CCR & P))
+    {
+        printf("\nbranch taken!\n");
+        cpu->PC = cpu->PC + cpu->branch_pc_relative_offset_bits;
+    }
+}
 
 
 //  ADD:
@@ -200,7 +220,7 @@ static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
     &cpu_and, &cpu_or, &cpu_not, &cpu_xor, &cpu_add, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
-    &cpu_jump_pc_relative, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_jump_pc_relative, &cpu_branch, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,

@@ -45,6 +45,15 @@ static uint32_t get_opcode(cpu_t* cpu);
 static cpu_op get_instruction(cpu_t* cpu);
 static uint32_t get_pc_relative_offset(cpu_t* cpu);
 static uint32_t* get_base_reg(cpu_t* cpu);
+static uint8_t get_condition_code_bits(cpu_t* cpu);
+
+
+//extracts the encoded condition code bits from the instruction
+static uint8_t get_condition_code_bits(cpu_t* cpu)
+{
+    return GET_BITS_IN_RANGE(cpu->IR, 23 ,25);
+}
+
 
 //as the name implies, it sign-extends the given value, of the given width, to 32-bits
 static uint32_t sign_extend(uint32_t original_value, uint8_t original_value_width)
@@ -61,7 +70,7 @@ static uint32_t sign_extend(uint32_t original_value, uint8_t original_value_widt
 
 static uint32_t sign_extend_ALU_immediate_bits(uint32_t ALU_bits)
 {
-    return sign_extend(ALU_bits, 16);
+    return sign_extend(ALU_bits, 15);
 }
 
 //sign-extend the 26-bit pc-relative offset for jump instructions
@@ -82,6 +91,11 @@ static uint32_t sign_extend_base_offset(uint32_t base_register_offset)
     return sign_extend(base_register_offset, 16);
 }
 
+//sign-extend the 23-bit pc-relative offset for branches
+static uint32_t sign_extend_branch_pc_relative_offset(uint32_t pc_relative_offset)
+{
+    return sign_extend(pc_relative_offset, 23);
+}
 
 static void install_opcodes(cpu_t* cpu)
 {
@@ -164,6 +178,11 @@ static uint32_t get_jump_pc_offset(cpu_t* cpu)
     return (cpu->IR & 0x03FFFFFF);
 }
 
+static uint32_t get_branch_pc_offset(cpu_t* cpu)
+{
+    return GET_BITS_IN_RANGE(cpu->IR, 0, 22);
+}
+
 
 static void fetch1(cpu_t* cpu)
 {
@@ -205,11 +224,13 @@ static void decode(cpu_t* cpu)
     cpu->destination_reg2 = get_destination_reg2(cpu);
     cpu->store_source_reg = get_store_source_reg(cpu);
     cpu->immediate_mode = get_immediate_mode_flag(cpu);
+    cpu->instruction_condition_codes = get_condition_code_bits(cpu);
     cpu->ALU_immediate_bits = sign_extend_ALU_immediate_bits(get_ALU_immediate_bits(cpu));
-    cpu->pc_relative_offset_bits = sign_extend_pc_relative_offset(get_pc_relative_offset(cpu));
+    cpu->load_pc_relative_offset_bits = sign_extend_pc_relative_offset(get_pc_relative_offset(cpu));
     cpu->base_reg = get_base_reg(cpu);
     cpu->base_register_offset_bits = sign_extend_base_offset(get_base_register_offset(cpu));
     cpu->jump_pc_relative_offset_bits = sign_extend_jump_pc_relative_offset(get_jump_pc_offset(cpu));
+    cpu->branch_pc_relative_offset_bits = sign_extend_branch_pc_relative_offset(get_branch_pc_offset(cpu));
     //load/store instructions get special treatment in our FSM
     if(is_memory_instruction(cpu->opcode))
     {
@@ -235,8 +256,8 @@ static void memory1(cpu_t* cpu)
     pipeline_stage = MEMORY2;
     if(is_pc_relative_instruction(cpu->opcode))
     {
-        cpu->MAR = cpu->PC + cpu->pc_relative_offset_bits;
-        printf("the PC is %08x, the offset is %08x, the MAR is %08x\n", cpu->PC, cpu->pc_relative_offset_bits, cpu->MAR);
+        cpu->MAR = cpu->PC + cpu->load_pc_relative_offset_bits;
+        printf("the PC is %08x, the offset is %08x, the MAR is %08x\n", cpu->PC, cpu->load_pc_relative_offset_bits, cpu->MAR);
     }
     else //base register + offset
     {
