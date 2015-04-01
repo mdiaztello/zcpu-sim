@@ -572,3 +572,35 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, jump_pc_relative_encodes_offsets_correctly)
     //offset limited to lower 26-bits of argument
     CHECK( JUMP(0x72000000) == 0x42000000 )
 }
+
+//BRANCH instruction tests
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_offsets_correctly)
+{
+    CHECK( BRNZP(0x00) == 0x47800000 )
+    CHECK( BRNZ(0x00) == 0x47000000 )
+    CHECK( BRNP(0x00) == 0x46800000 )
+    CHECK( BRN(0x00) == 0x46000000 )
+    CHECK( BRZP(0x00) == 0x45800000 )
+    CHECK( BRZ(0x00) == 0x45000000 )
+    CHECK( BRP(0x00) == 0x44800000 )
+    CHECK( BNV(0x00) == 0x44000000 )
+
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_condition_codes_correctly)
+{
+    //zero offset
+    CHECK( BRA(0x00) == 0x47800000 )
+
+    //-1 offset
+    CHECK( BRA(-1) ==  0x47FFFFFF )
+
+    //most negative offset (-2^22 == -4194304)
+    CHECK( BRA(-4194304) == 0x47C00000 )
+
+    //highest positive offset (2^22 - 1 == 4194303)
+    CHECK( BRA(4194303) == 0x47BFFFFF )
+
+    //offset limited to lower 23-bits of argument
+    CHECK( BRA(0x7F800000) == 0x47800000 )
+}

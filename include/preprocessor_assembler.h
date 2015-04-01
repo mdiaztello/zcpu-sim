@@ -20,6 +20,7 @@
 #define PC_RELATIVE(op, reg, imm21)             (((op) << 26) | ((reg) << 21) | (GET_BOTTOM_BITS((imm21), 21)))
 #define BASE_PLUS_OFFSET(op, reg, base, imm16)  (((op) << 26) | ((reg) << 21) | ((base) << 16) | (GET_BOTTOM_BITS((imm16), 16)))
 #define JUMP_PC_RELATIVE(op, pc_rel_offset26)   ((op << 26) | (GET_BOTTOM_BITS((pc_rel_offset26), 26)))
+#define BRANCH_PC_RELATIVE(op, N, Z, P, pc_rel_offset23) ((op << 26) | (N << 25) | (Z << 24) | (P << 23) | (GET_BOTTOM_BITS((pc_rel_offset23), 23)))
 
 //OPCODES
 //ALU operations
@@ -48,6 +49,7 @@
 #define OPCODE_JUMP     (0x10)
 
 //Branch instructions
+#define OPCODE_BRANCH   (0x11)
 
 //AUXILIARY BITS: Additional bits that are needed for proper instruction encoding
 //e.g. immediate mode flag bits, branch condition bits, &c.
@@ -91,6 +93,8 @@
 
 //INSTRUCTIONS: USE THESE MACROS TO WRITE YOUR ASM PROGRAMS
 
+//ALU INSTRUCTIONS
+
 #define AND(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_AND, destination_reg, source_reg1, source_reg2)
 #define AND_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_AND, destination_reg, source_reg, immediate_value_15_bits)
 
@@ -111,16 +115,36 @@
 #define SUB(destination_reg, source_reg1, source_reg2)                      REGISTER_OP(OPCODE_SUB, destination_reg, source_reg1, source_reg2)
 #define SUB_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits) IMMEDIATE_OP(OPCODE_SUB, destination_reg, source_reg, immediate_value_15_bits)
 
+//LOAD INSTRUCTIONS
+
 #define LOAD(destination_reg, pc_relative_offset)                           PC_RELATIVE(OPCODE_LOAD, destination_reg, pc_relative_offset)
 #define LOADR(destination_reg, base_reg, offset)                            BASE_PLUS_OFFSET(OPCODE_LOADR, destination_reg, base_reg, offset)
 #define LOADA(destination_reg, pc_relative_offset)                          PC_RELATIVE(OPCODE_LOADA, destination_reg, pc_relative_offset)
 
+//STORE INSTRUCTIONS
+
 #define STORE(source_reg, pc_relative_offset)                               PC_RELATIVE(OPCODE_STORE, source_reg, pc_relative_offset)
 #define STORER(source_reg, base_reg, offset)                                BASE_PLUS_OFFSET(OPCODE_STORER, source_reg, base_reg, offset)
+
+//JUMP INSTRUCTIONS
 
 #define JUMP(pc_relative_offset)                                            JUMP_PC_RELATIVE(OPCODE_JUMP, pc_relative_offset)
 //The venerable Halt-catch-fire instruction!
 #define HCF                                                                 JUMP(-1)    //spin forever
+
+//BRANCH INSTRUCTIONS
+#define BRNZP(pc_relative_offset)                                           BRANCH_PC_RELATIVE(OPCODE_BRANCH, 1, 1, 1, pc_relative_offset)
+#define BRNZ(pc_relative_offset)                                            BRANCH_PC_RELATIVE(OPCODE_BRANCH, 1, 1, 0, pc_relative_offset)
+#define BRZP(pc_relative_offset)                                            BRANCH_PC_RELATIVE(OPCODE_BRANCH, 0, 1, 1, pc_relative_offset)
+#define BRNP(pc_relative_offset)                                            BRANCH_PC_RELATIVE(OPCODE_BRANCH, 1, 0, 1, pc_relative_offset)
+#define BRN(pc_relative_offset)                                             BRANCH_PC_RELATIVE(OPCODE_BRANCH, 1, 0, 0, pc_relative_offset)
+#define BRZ(pc_relative_offset)                                             BRANCH_PC_RELATIVE(OPCODE_BRANCH, 0, 1, 0, pc_relative_offset)
+#define BRP(pc_relative_offset)                                             BRANCH_PC_RELATIVE(OPCODE_BRANCH, 0, 0, 1, pc_relative_offset)
+//BNV is useless b/c it never branches, but the encoding must be handled since it implicitly exists
+#define BNV(pc_relative_offset)                                             BRANCH_PC_RELATIVE(OPCODE_BRANCH, 0, 0, 0, pc_relative_offset)
+//BRANCH INSTRUCTION ALIASES (for convenience purposes)
+#define BRA                                                                 BRNZP
+#define BR                                                                  BRNZP
 
 
 #endif // __PREPROCESSOR_ASSEMBLER_H_
