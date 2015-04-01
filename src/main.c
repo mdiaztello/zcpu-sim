@@ -74,42 +74,42 @@ uint32_t program[PROGRAM_LENGTH] = {
 uint32_t program[PROGRAM_LENGTH] = {
     LOADA(R1, FRAME_BUFFER_START),
     OR_IMMEDIATE(R2, R2, BLUE),
-    STORER(R2, R1, (0*640+320)),
-    STORER(R2, R1, (0*640+321)),
-    STORER(R2, R1, (0*640+322)),
-    STORER(R2, R1, (0*640+323)),
-    STORER(R2, R1, (0*640+324)),
-    STORER(R2, R1, (0*640+325)),
-    STORER(R2, R1, (1*640+320)),
-    STORER(R2, R1, (1*640+321)),
-    STORER(R2, R1, (1*640+322)),
-    STORER(R2, R1, (1*640+323)),
-    STORER(R2, R1, (1*640+324)),
-    STORER(R2, R1, (1*640+325)),
-    STORER(R2, R1, (2*640+320)),
-    STORER(R2, R1, (2*640+321)),
-    STORER(R2, R1, (2*640+322)),
-    STORER(R2, R1, (2*640+323)),
-    STORER(R2, R1, (2*640+324)),
-    STORER(R2, R1, (2*640+325)),
-    STORER(R2, R1, (3*640+320)),
-    STORER(R2, R1, (3*640+321)),
-    STORER(R2, R1, (3*640+322)),
-    STORER(R2, R1, (3*640+323)),
-    STORER(R2, R1, (3*640+324)),
-    STORER(R2, R1, (3*640+325)),
-    STORER(R2, R1, (4*640+320)),
-    STORER(R2, R1, (4*640+321)),
-    STORER(R2, R1, (4*640+322)),
-    STORER(R2, R1, (4*640+323)),
-    STORER(R2, R1, (4*640+324)),
-    STORER(R2, R1, (4*640+325)),
-    STORER(R2, R1, (5*640+320)),
-    STORER(R2, R1, (5*640+321)),
-    STORER(R2, R1, (5*640+322)),
-    STORER(R2, R1, (5*640+323)),
-    STORER(R2, R1, (5*640+324)),
-    STORER(R2, R1, (5*640+325)),
+    STORER(R2, R1, (40*640+320)),
+    STORER(R2, R1, (40*640+321)),
+    STORER(R2, R1, (40*640+322)),
+    STORER(R2, R1, (40*640+323)),
+    STORER(R2, R1, (40*640+324)),
+    STORER(R2, R1, (40*640+325)),
+    STORER(R2, R1, (41*640+320)),
+    STORER(R2, R1, (41*640+321)),
+    STORER(R2, R1, (41*640+322)),
+    STORER(R2, R1, (41*640+323)),
+    STORER(R2, R1, (41*640+324)),
+    STORER(R2, R1, (41*640+325)),
+    STORER(R2, R1, (42*640+320)),
+    STORER(R2, R1, (42*640+321)),
+    STORER(R2, R1, (42*640+322)),
+    STORER(R2, R1, (42*640+323)),
+    STORER(R2, R1, (42*640+324)),
+    STORER(R2, R1, (42*640+325)),
+    STORER(R2, R1, (43*640+320)),
+    STORER(R2, R1, (43*640+321)),
+    STORER(R2, R1, (43*640+322)),
+    STORER(R2, R1, (43*640+323)),
+    STORER(R2, R1, (43*640+324)),
+    STORER(R2, R1, (43*640+325)),
+    STORER(R2, R1, (44*640+320)),
+    STORER(R2, R1, (44*640+321)),
+    STORER(R2, R1, (44*640+322)),
+    STORER(R2, R1, (44*640+323)),
+    STORER(R2, R1, (44*640+324)),
+    STORER(R2, R1, (44*640+325)),
+    STORER(R2, R1, (45*640+320)),
+    STORER(R2, R1, (45*640+321)),
+    STORER(R2, R1, (45*640+322)),
+    STORER(R2, R1, (45*640+323)),
+    STORER(R2, R1, (45*640+324)),
+    STORER(R2, R1, (45*640+325)),
     HCF
 };
 #undef FRAME_BUFFER_START
@@ -146,6 +146,7 @@ uint32_t program[PROGRAM_LENGTH] = {
 };
 #endif
 
+#if 0
 
 //testing branching with a small loop
 uint32_t program[PROGRAM_LENGTH] = {
@@ -156,6 +157,59 @@ uint32_t program[PROGRAM_LENGTH] = {
     ADD_IMMEDIATE(R0, R0, -1),
     HCF
 };
+#endif
+
+
+
+//check writing to the framebuffer with branching by writing a 6x6 blue square
+#define FRAME_BUFFER_START (0x1100)
+#define BLUE (0x0000FFFF)
+#define SCREEN_WIDTH 640
+#define BOX_HEIGHT  10
+#define BOX_WIDTH   10
+#define STARTING_POSITION_IN_FRAME_BUFFER   (320)
+uint32_t program[PROGRAM_LENGTH] = {
+    CLEAR(R0),      //the start of the frame buffer
+    LOADA(R0, FRAME_BUFFER_START),
+    CLEAR(R1),      //the particular pixel index
+    ADD_IMMEDIATE(R1, R1, STARTING_POSITION_IN_FRAME_BUFFER),
+    ADD_IMMEDIATE(R1, R0, R1),                  //the absolute memory address of our starting position
+    CLEAR(R2),      //the pixel value to write
+    OR_IMMEDIATE(R2, R2, BLUE),
+    CLEAR(R3),      //the screen width
+    ADD_IMMEDIATE(R3, R3, SCREEN_WIDTH),
+    CLEAR(R4),      //the box width
+    ADD_IMMEDIATE(R4, R4, BOX_WIDTH),
+    CLEAR(R5),      //the box height
+    ADD_IMMEDIATE(R5, R5, BOX_HEIGHT),
+
+    //FIXME: why doesn't the box appear staringt somewhere other than the upper
+    //left corner? No matter where i set the starting position, it doesn't seem
+    //to set the correct pixel...
+    
+    AND_IMMEDIATE(R1, R1, 0x00),
+    ADD_IMMEDIATE(R1, R1, STARTING_POSITION_IN_FRAME_BUFFER),
+    ADD_IMMEDIATE(R1, R0, R1),                  //the absolute memory address of our starting position
+    ADD(R1, R1, R3),    //go to next screen row
+    STORER(R2, R1, 0),
+    ADD_IMMEDIATE(R1, R1, 1), //inc pixel position
+
+    ADD_IMMEDIATE(R4, R4, -1), //decrement box column
+    BRP(-4),
+    ADD_IMMEDIATE(R4, R4, BOX_WIDTH),
+    ADD_IMMEDIATE(R3, R3, SCREEN_WIDTH),    
+    ADD_IMMEDIATE(R5, R5, -1),  //decrement box row
+    BRP(-12),
+
+    HCF
+};
+#undef SCREEN_WIDTH
+#undef STARTING_POSITION_IN_FRAME_BUFFER
+#undef BOX_WIDTH
+#undef BOX_HEIGHT
+#undef FRAME_BUFFER_START
+#undef BLUE
+
 
 //throwaway function so I don't have to keep commenting/uncommenting the "run x steps" code
 static void run(computer_t* computer, int num_steps)
@@ -184,7 +238,7 @@ int main(void)
 
     const int RUN_FOREVER = -1;
     const int num_steps = 30;
-    run(computer, num_steps);
+    run(computer, RUN_FOREVER);
 
     quit_simulation();
 

@@ -112,8 +112,6 @@ void bus_cycle(memory_bus_t* bus)
         return;
     }
 
-    printf("the bus is writing to address %08x\n", bus->address_lines);
-
     //decode memory map
     if(bus->address_lines <= BOOT_ROM_END)
     {

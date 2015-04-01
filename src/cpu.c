@@ -111,21 +111,18 @@ static uint32_t get_opcode(cpu_t* cpu)
 static uint32_t* get_source_reg1(cpu_t* cpu)
 {
     uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 16, 20);
-    printf("SR1 is R%02d\n", reg_name);
     return &cpu->registers[reg_name];
 }
 
 static uint32_t* get_source_reg2(cpu_t* cpu)
 {
     uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 11, 15);
-    printf("SR2 is R%02d\n", reg_name);
     return &cpu->registers[reg_name];
 }
 
 static uint32_t* get_destination_reg1(cpu_t* cpu)
 {
     uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 21, 25);
-    printf("DR1 is R%02d\n", reg_name);
     return &cpu->registers[reg_name];
 }
 
@@ -257,7 +254,6 @@ static void memory1(cpu_t* cpu)
     if(is_pc_relative_instruction(cpu->opcode))
     {
         cpu->MAR = cpu->PC + cpu->load_pc_relative_offset_bits;
-        printf("the PC is %08x, the offset is %08x, the MAR is %08x\n", cpu->PC, cpu->load_pc_relative_offset_bits, cpu->MAR);
     }
     else //base register + offset
     {
@@ -288,7 +284,6 @@ static void memory2(cpu_t* cpu)
         if(is_load_instruction(cpu->opcode))
         {
             cpu->MDR = bus_get_data_lines(cpu->bus);
-            printf("the mdr is %08x\n", cpu->MDR);
             pipeline_stage = EXECUTE;
         }
         else
@@ -395,7 +390,6 @@ void cpu_cycle(cpu_t* cpu)
         cpu->instruction_finished = false;
     }
 
-    printf("the PC is now %08x\n", cpu->PC);
 }
 
 bool cpu_completed_instruction(cpu_t* cpu)

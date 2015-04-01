@@ -109,7 +109,6 @@ void cpu_or(cpu_t* cpu)
         //operand so that it does no damage to what's in the upper 16-bits of
         //the register
         cpu->ALU_immediate_bits &= 0x0000FFFF ;
-        printf("the immediate-mode value was 0x%08X\n", cpu->ALU_immediate_bits);
         *cpu->destination_reg1 = *cpu->source_reg1 | cpu->ALU_immediate_bits;
     }
 
@@ -122,17 +121,13 @@ void cpu_or(cpu_t* cpu)
 void cpu_not(cpu_t* cpu)
 {
     //FIXME: do we need to update the CCR?
-    //message(__FUNCTION__);
     *cpu->destination_reg1 = ~(*cpu->source_reg1);
-    //printf("source reg = 0x%08X\n", *cpu->source_reg1);
-    //printf("destination reg = 0x%08X\n", *cpu->destination_reg1);
     update_condition_code_bits(cpu, *cpu->destination_reg1);
 }
 
 void cpu_xor(cpu_t* cpu)
 {
     //FIXME: stub for now
-    message(__FUNCTION__);
     cpu_nop(cpu);
 }
 
@@ -174,7 +169,6 @@ void cpu_branch(cpu_t* cpu)
 
     if((cpu->CCR & N) || (cpu->CCR & Z) || (cpu->CCR & P))
     {
-        printf("\nbranch taken!\n");
         cpu->PC = cpu->PC + cpu->branch_pc_relative_offset_bits;
     }
 }
@@ -191,17 +185,14 @@ void cpu_branch(cpu_t* cpu)
 
 void cpu_add(cpu_t* cpu)
 {
-    message(__FUNCTION__);
     if(!cpu->immediate_mode)
     {
 
         *cpu->destination_reg1 = *cpu->source_reg1 + *cpu->source_reg2;
-        printf( "DR = %08X SR1 = %08X  SR2 = %08X\n", *cpu->destination_reg1 , *cpu->source_reg1 , *cpu->source_reg2);
     }
     else
     {
         *cpu->destination_reg1 = *cpu->source_reg1 + cpu->ALU_immediate_bits;
-        printf( "DR = %08X SR1 = %08X  immediate = %08X\n", *cpu->destination_reg1 , *cpu->source_reg1 , cpu->ALU_immediate_bits);
     }
 
     update_condition_code_bits(cpu, *cpu->destination_reg1);

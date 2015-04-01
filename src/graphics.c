@@ -79,7 +79,6 @@ void graphics_update(graphics_t* graphics, uint32_t pixel_address, uint32_t RGBA
     SDL_LockTexture(graphics->screen, NULL, (void**) &(graphics->frame_buffer), &pitch);
     graphics->frame_buffer[index] = RGBA_pixel;
     SDL_UnlockTexture(graphics->screen);
-    printf("the pixel color is %08X\n", RGBA_pixel);
 }
 
 
