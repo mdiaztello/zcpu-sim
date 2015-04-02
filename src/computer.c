@@ -105,13 +105,29 @@ void computer_single_step(computer_t* computer)
 //execute the program in memory until told to stop
 void computer_run(computer_t* computer)
 {
+    const uint32_t MAX_FPS = 60;
+    const uint32_t MAX_TIME_BETWEEN_FRAMES_MILLISECONDS = (1000 / MAX_FPS);
+    uint32_t frame_time = 0;
+    uint32_t old_frame_time = 0;
+
     simulation_running = true;
     while(simulation_running)
     {
         computer_single_step(computer);
-        //DEBUG
-        input(computer->keyboard);
-        graphics_draw(computer->screen);
+        
+        //We are limiting updating the display and taking keyboard input to a
+        //60Hz rate because before we were executing these functions at every
+        //opportunity, and they cause the rest of the simulation to slow down.
+        //They keyboard input is also done at 60Hz because it seems like a
+        //reasonable rate to gather events since nobody can possibly type that
+        //fast.
+        frame_time = SDL_GetTicks();
+        if(MAX_TIME_BETWEEN_FRAMES_MILLISECONDS < (frame_time - old_frame_time))
+        {
+            old_frame_time = frame_time;
+            graphics_draw(computer->screen);
+            input(computer->keyboard);
+        }
     }
 }
 

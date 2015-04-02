@@ -45,7 +45,7 @@ CC := gcc
 
 # catch issue additional warnings and make them into hard errors
 #CFLAGS := -Wall -Wextra -Werror -std=c99
-CFLAGS := -Wall -Wextra -std=c99
+CFLAGS := -Wall -Wextra -std=c99 -g
 
 LDFLAGS = $(SDL_LIB)
 
