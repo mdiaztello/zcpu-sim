@@ -200,10 +200,9 @@ void cpu_add(cpu_t* cpu)
 
 void cpu_nop(cpu_t* cpu)
 {
-    beacon();
     if(cpu != NULL)
     {
-        message(__FUNCTION__);
+        //message(__FUNCTION__);
     }
 }
 

@@ -74,11 +74,7 @@ void graphics_destroy(graphics_t* graphics)
 void graphics_update(graphics_t* graphics, uint32_t pixel_address, uint32_t RGBA_pixel)
 {
     uint32_t index = pixel_address - GRAPHICS_REGION_START;
-    //FIXME: eventually need double-buffering
-    int pitch = graphics->WINDOW_WIDTH*sizeof(uint32_t);
-    SDL_LockTexture(graphics->screen, NULL, (void**) &(graphics->frame_buffer), &pitch);
     graphics->frame_buffer[index] = RGBA_pixel;
-    SDL_UnlockTexture(graphics->screen);
 }
 
 

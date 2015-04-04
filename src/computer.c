@@ -87,6 +87,7 @@ void computer_load_program(computer_t* computer, uint32_t* program, size_t progr
     }
 }
 
+uint32_t cycles = 0;
 //execute the next single instruction for the program in memory
 void computer_single_step(computer_t* computer)
 {
@@ -97,9 +98,9 @@ void computer_single_step(computer_t* computer)
         memory_cycle(computer->RAM, computer->bus);
         graphics_cycle(computer->screen, computer->bus);
         computer->elapsed_cycles++;
+        cycles++;
     }
     while(!cpu_completed_instruction(computer->cpu));
-
 }
 
 //execute the program in memory until told to stop
@@ -110,6 +111,7 @@ void computer_run(computer_t* computer)
     uint32_t frame_time = 0;
     uint32_t old_frame_time = 0;
 
+    uint32_t timestamp = SDL_GetTicks();
     simulation_running = true;
     while(simulation_running)
     {
@@ -127,6 +129,13 @@ void computer_run(computer_t* computer)
             old_frame_time = frame_time;
             graphics_draw(computer->screen);
             input(computer->keyboard);
+        }
+
+        if(SDL_GetTicks() - timestamp >= 1000)
+        {
+            printf("%d cycles processed \n", cycles);
+            cycles = 0;
+            timestamp = SDL_GetTicks();
         }
     }
 }
