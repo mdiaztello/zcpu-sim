@@ -129,50 +129,52 @@ static uint32_t* get_destination_reg1(cpu_t* cpu)
 static uint32_t* get_destination_reg2(cpu_t* cpu)
 {
     //FIXME: this destination register 2 encoding is now broken! figure out what I want to do about instruction encoding and multiplication
-    uint32_t reg_name = (cpu->IR & (0x1F << 6)) >> 6;
+    uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 6, 10);
     return &cpu->registers[reg_name];
 }
 
 //gets the register to store from for store-type instructions
 static uint32_t* get_store_source_reg(cpu_t* cpu)
 {
-    uint32_t reg_name = (cpu->IR & (0x1F << 21)) >> 21;
+    uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 21, 25);
     return &cpu->registers[reg_name];
 }
 
 static bool get_immediate_mode_flag(cpu_t* cpu)
 {
-    return (cpu->IR & 0x00000001); //the last bit of the instruction is the immediate mode flag
+    //the last bit of the instruction is the immediate mode flag
+    const uint8_t IMMEDIATE_MODE_BIT = 0;
+    return CHECK_BIT_SET(cpu->IR, IMMEDIATE_MODE_BIT);
 }
 
 //gets the 15-bit immediate mode operand from the instruction for ALU operations
 static uint32_t get_ALU_immediate_bits(cpu_t* cpu)
 {
-    return (cpu->IR & 0x0000FFFF) >> 1;
+    return GET_BITS_IN_RANGE(cpu->IR, 1, 15);
 }
 
 //gets the 21-bit pc-relative offset encoded in the load/store instruction
 static uint32_t get_pc_relative_offset(cpu_t* cpu)
 {
-    return (cpu->IR & 0x001FFFFF);
+    return GET_BITS_IN_RANGE(cpu->IR, 0, 20);
 }
 
 static uint32_t* get_base_reg(cpu_t* cpu)
 {
-    uint32_t reg_name = (cpu->IR & (0x1F << 16) ) >> 16;
+    uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 16, 20);
     return &cpu->registers[reg_name];
 }
 
 //get the 16-bit base-register offset for base_reg + offset style instructions
 static uint32_t get_base_register_offset(cpu_t* cpu)
 {
-    return (cpu->IR & 0x0000FFFF);
+    return GET_BITS_IN_RANGE(cpu->IR, 0, 15);
 }
 
 //get the 26-bit pc-relative offset for the jump instruction
 static uint32_t get_jump_pc_offset(cpu_t* cpu)
 {
-    return (cpu->IR & 0x03FFFFFF);
+    return GET_BITS_IN_RANGE(cpu->IR, 0, 25);
 }
 
 static uint32_t get_branch_pc_offset(cpu_t* cpu)
@@ -337,7 +339,7 @@ void cpu_reset(cpu_t* cpu)
 {
     const uint32_t INITIAL_ADDRESS = 0x00;
     const uint32_t INITIAL_VALUE = 0x00;
-    memset(cpu->registers, 0x00, sizeof(cpu->registers));
+    memset(cpu->registers, INITIAL_VALUE, sizeof(cpu->registers));
     cpu->PC = INITIAL_ADDRESS;
     cpu->CCR = INITIAL_VALUE;
     cpu->IR = INITIAL_VALUE;
