@@ -22,34 +22,7 @@
 #define JUMP_PC_RELATIVE(op, pc_rel_offset26)   ((op << 26) | (GET_BOTTOM_BITS((pc_rel_offset26), 26)))
 #define BRANCH_PC_RELATIVE(op, N, Z, P, pc_rel_offset23) ((op << 26) | (N << 25) | (Z << 24) | (P << 23) | (GET_BOTTOM_BITS((pc_rel_offset23), 23)))
 
-//OPCODES
-//ALU operations
-#define OPCODE_AND      (0x00)
-#define OPCODE_OR       (0x01)
-#define OPCODE_NOT      (0x02)
-#define OPCODE_XOR      (0x03)
-#define OPCODE_ADD      (0x04)
-#define OPCODE_SUB      (0x05)
-#define OPCODE_MUL      (0x06)
-#define OPCODE_DIV      (0x07)
-#define OPCODE_COMPARE  (0x08)
-#define OPCODE_SHIFTL   (0x09)
-#define OPCODE_SHIFTR   (0x0A)
-
-//Load instructions
-#define OPCODE_LOAD     (0x0B)
-#define OPCODE_LOADR    (0x0C)
-#define OPCODE_LOADA    (0x0D)
-
-//store instructions
-#define OPCODE_STORE    (0x0E)
-#define OPCODE_STORER   (0x0F)
-
-//Jump instructions
-#define OPCODE_JUMP     (0x10)
-
-//Branch instructions
-#define OPCODE_BRANCH   (0x11)
+#include "opcode_list.h"
 
 //AUXILIARY BITS: Additional bits that are needed for proper instruction encoding
 //e.g. immediate mode flag bits, branch condition bits, &c.

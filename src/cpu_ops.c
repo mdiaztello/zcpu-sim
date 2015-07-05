@@ -3,6 +3,7 @@
 //a table that the cpu structure links to when it is created.
 
 #include "cpu_ops.h"
+#include "opcode_list.h"
 #include "debug.h"
 
 static cpu_op instruction_table[NUM_INSTRUCTIONS];
@@ -23,36 +24,27 @@ void update_condition_code_bits(cpu_t* cpu, uint32_t result)
     {
         cpu->CCR = 0x00000001; //set positive bit of CCR
     }
-
 }
 
 //tells us if the instruction touches memory during execution (i.e. load/store)
 bool is_memory_instruction(uint8_t opcode)
 {
-    return ((0x0B <= opcode) && (opcode <= 0x0F));
+    return ((OPCODE_LOAD <= opcode) && (opcode <= OPCODE_STORER));
 }
 
 bool is_load_instruction(uint8_t opcode)
 {
-    const uint8_t LOAD = 0x0B;
-    const uint8_t LOADR = 0x0C;
-    const uint8_t LOADA = 0x0D;
-
-    return ((LOAD == opcode) || (LOADR == opcode) || (LOADA == opcode));
+    return ((OPCODE_LOAD == opcode) || (OPCODE_LOADR == opcode) || (OPCODE_LOADA == opcode));
 }
 
 bool is_pc_relative_instruction(uint8_t opcode)
 {
-    const uint8_t LOAD = 0x0B;
-    const uint8_t LOADA = 0x0D;
-    const uint8_t STORE = 0x0E;
-    return (LOAD == opcode) || (LOADA == opcode) || (STORE == opcode);
+    return (OPCODE_LOAD == opcode) || (OPCODE_LOADA == opcode) || (OPCODE_STORE == opcode);
 }
 
 bool is_load_effective_address_instruction(uint8_t opcode)
 {
-    const uint8_t LOADA = 0x0D;
-    return  LOADA == opcode;
+    return  OPCODE_LOADA == opcode;
 }
 
 static void message(const char* msg)
