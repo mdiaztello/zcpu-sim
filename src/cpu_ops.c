@@ -2,11 +2,15 @@
 //This submodule implements all of the opcodes for the CPU and sticks them in 
 //a table that the cpu structure links to when it is created.
 
+#include "bit_twiddling.h"
 #include "cpu_ops.h"
 #include "opcode_list.h"
 #include "debug.h"
 
 static cpu_op instruction_table[NUM_INSTRUCTIONS];
+
+enum condition_code_register_bit_position_t { POSITIVE_BIT = 0, ZERO_BIT = 1, NEGATIVE_BIT = 2 };
+
 
 //sets the condition code bits according to the result of the last ALU operation
 //FIXME: Do I want or need additional condition codes?
@@ -155,9 +159,9 @@ void cpu_jump_pc_relative(cpu_t* cpu)
 // current (incremented) state
 void cpu_branch(cpu_t* cpu)
 {
-    uint32_t N = (1u << 2) & cpu->instruction_condition_codes;
-    uint32_t Z = (1u << 1) & cpu->instruction_condition_codes;
-    uint32_t P = (1u << 0) & cpu->instruction_condition_codes;
+    uint32_t N = CHECK_BIT_SET(cpu->instruction_condition_codes, NEGATIVE_BIT);
+    uint32_t Z = CHECK_BIT_SET(cpu->instruction_condition_codes, ZERO_BIT);
+    uint32_t P = CHECK_BIT_SET(cpu->instruction_condition_codes, POSITIVE_BIT);
 
     if((cpu->CCR & N) || (cpu->CCR & Z) || (cpu->CCR & P))
     {
