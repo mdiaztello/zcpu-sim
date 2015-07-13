@@ -36,31 +36,31 @@ struct timer_t
 {
     uint8_t control_bits;
 
+    uint8_t IRQ_number;
     uint32_t prescale_value;
     uint32_t prescale_counter;
 
     uint32_t timer_value;
-
-
 };
 
 
 static void prescale_tick(timer_t* timer);
 static void tick(timer_t* timer);
-static void request_interrupt(void);
-static void update_interrupt_status(timer_t* timer);
+static void update_interrupt_status(timer_t* timer, interrupt_controller_t* ic);
 static void update_timer_overflow_status(timer_t* timer);
 
 
-timer_t* make_timer(void)
+timer_t* make_timer(uint8_t IRQ_number)
 {
     //timer has value of 0, no prescaling, is turned off, and has its
     //interrupts masked when first created
-    return (timer_t*) calloc(1, sizeof(struct timer_t));
+    timer_t* timer =  calloc(1, sizeof(struct timer_t));
+    timer->IRQ_number = IRQ_number;
+    return timer;
 }
 
 
-void timer_cycle(timer_t* timer, memory_bus_t* bus)
+void timer_cycle(timer_t* timer, memory_bus_t* bus, interrupt_controller_t* ic)
 {
 
     //timer register manipulation here
@@ -81,7 +81,7 @@ void timer_cycle(timer_t* timer, memory_bus_t* bus)
         update_timer_overflow_status(timer);
     }
 
-    update_interrupt_status(timer);
+    update_interrupt_status(timer, ic);
 
     //DEBUG
     
@@ -92,17 +92,17 @@ void timer_cycle(timer_t* timer, memory_bus_t* bus)
     }
 }
 
-static void update_interrupt_status(timer_t* timer)
+static void update_interrupt_status(timer_t* timer, interrupt_controller_t* ic)
 {
     if(CHECK_BIT_SET(timer->control_bits, TIMER_INTERRUPT_ENABLE_BIT) && CHECK_BIT_SET(timer->control_bits, TIMER_INTERRUPT_FLAG_BIT))
     {
         //at this point, interrupts are enabled and the overflow interrupt has
         //occured, so we need to signal the processor
-        request_interrupt();
+        request_interrupt(ic, timer->IRQ_number);
     }
     else
     {
-        //clear_interrupt(interrupt_controller_t* ic, uint8_t irq_number);
+        clear_interrupt(ic, timer->IRQ_number);
     }
 }
 
@@ -148,9 +148,3 @@ static void update_timer_overflow_status(timer_t* timer)
     BIT_SET(timer->control_bits, TIMER_INTERRUPT_FLAG_BIT);
 }
 
-
-static void request_interrupt(void)
-{
-    //FIXME: I will need to come back to to fix things once I figure out how I
-    //want to do interrupts on this system
-}

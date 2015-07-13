@@ -6,6 +6,7 @@
 #include "graphics.h"
 #include "keyboard.h"
 #include "timer.h"
+#include "interrupt_controller.h"
 #include "debug.h"
 
 #include <stdio.h>
@@ -25,12 +26,19 @@ struct computer_t
     graphics_t* screen;
     keyboard_t* keyboard;
     timer_t* system_timer;
+    interrupt_controller_t* interrupt_controller;
 };
 
 //FIXME: these will need parameters for graphics and memory_bus later
 //Creates a computer object and connects its dependencies, but doesn't 
 //initialize it
-computer_t* make_computer(cpu_t* cpu, memory_t* memory, memory_bus_t* bus, graphics_t* graphics, keyboard_t* keyboard, timer_t* system_timer)
+computer_t* make_computer(cpu_t* cpu, 
+                          memory_t* memory, 
+                          memory_bus_t* bus, 
+                          graphics_t* graphics, 
+                          keyboard_t* keyboard, 
+                          timer_t* system_timer, 
+                          interrupt_controller_t* ic)
 {
     computer_t* computer = calloc(1, sizeof(struct computer_t));
     computer->cpu = cpu;
@@ -39,6 +47,7 @@ computer_t* make_computer(cpu_t* cpu, memory_t* memory, memory_bus_t* bus, graph
     computer->screen = graphics;
     computer->keyboard = keyboard;
     computer->system_timer = system_timer;
+    computer->interrupt_controller = ic;
     return computer;
 }
 
@@ -66,9 +75,10 @@ computer_t* build_computer(void)
     //DEBUG
     graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     keyboard_t* keyboard = create_keyboard();
-    timer_t* sys_timer = make_timer();
+    timer_t* sys_timer = make_timer(IRQ_1);
+    interrupt_controller_t* ic = make_interrupt_controller();
 
-    computer_t* computer = make_computer(cpu, RAM, bus, display, keyboard, sys_timer);
+    computer_t* computer = make_computer(cpu, RAM, bus, display, keyboard, sys_timer, ic);
     computer_reset(computer);
     return computer;
 }
@@ -104,7 +114,7 @@ void computer_single_step(computer_t* computer)
 
         memory_cycle(computer->RAM, computer->bus);
         graphics_cycle(computer->screen, computer->bus);
-        timer_cycle(computer->system_timer, computer->bus);
+        timer_cycle(computer->system_timer, computer->bus, computer->interrupt_controller);
 
         computer->elapsed_cycles++;
         cycles++;

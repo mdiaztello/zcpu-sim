@@ -6,9 +6,6 @@
 
 #include "interrupt_controller.h"
 
-
-#define MAX_NUM_IRQS    256
-
 struct interrupt_controller_t
 {
     uint8_t interrupt_source;
@@ -16,6 +13,13 @@ struct interrupt_controller_t
     bool irq_sources[MAX_NUM_IRQS];
 };
 
+interrupt_controller_t* make_interrupt_controller(void)
+{
+    interrupt_controller_t* ic = calloc(1, sizeof(struct interrupt_controller_t));
+    ic->interrupt_source = 0;
+    ic->interrupt_requested = false;
+    return ic;
+}
 
 void update_interrupt_request_status(interrupt_controller_t* ic)
 {
@@ -43,4 +47,14 @@ void clear_interrupt(interrupt_controller_t* ic, uint8_t irq_number)
 {
     ic->irq_sources[irq_number] = false;
     update_interrupt_request_status(ic);
+}
+
+bool interrupt_requested(interrupt_controller_t* ic)
+{
+    return ic->interrupt_requested;
+}
+
+uint8_t get_interrupt_source(interrupt_controller_t* ic)
+{
+    return ic->interrupt_source;
 }
