@@ -49,6 +49,7 @@ static void prescale_tick(timer_t* timer);
 static void tick(timer_t* timer);
 static void request_interrupt(void);
 static void update_interrupt_status(timer_t* timer);
+static void update_timer_overflow_status(timer_t* timer);
 
 
 timer_t* make_timer(void)
@@ -61,16 +62,47 @@ timer_t* make_timer(void)
 
 void timer_cycle(timer_t* timer, memory_bus_t* bus)
 {
+
+    //timer register manipulation here
+
+        //FIXME: figure out what I want to do with the timer-specific
+        //registers: should I decode them "by hand" or just stick everything in
+        //a lookup table?
+
+    if(CHECK_BIT_CLEAR(timer->control_bits, TIMER_ON_BIT))
+        return;
+
+    uint32_t previous_timer_value = timer->timer_value;
+
     tick(timer);
 
-    //FIXME: figure out what I want to do with the timer-specific registers:
-    //should I decode them "by hand" or just stick everything in a lookup
-    //table?
+    if(timer->timer_value < previous_timer_value)
+    {
+        update_timer_overflow_status(timer);
+    }
+
+    update_interrupt_status(timer);
+
+    //DEBUG
     
     if(timer->timer_value == CPU_FREQUENCY)
     {
         timer->timer_value = 0;
         printf("DEBUG: + 1 second\n");
+    }
+}
+
+static void update_interrupt_status(timer_t* timer)
+{
+    if(CHECK_BIT_SET(timer->control_bits, TIMER_INTERRUPT_ENABLE_BIT) && CHECK_BIT_SET(timer->control_bits, TIMER_INTERRUPT_FLAG_BIT))
+    {
+        //at this point, interrupts are enabled and the overflow interrupt has
+        //occured, so we need to signal the processor
+        request_interrupt();
+    }
+    else
+    {
+        //clear_interrupt(interrupt_controller_t* ic, uint8_t irq_number);
     }
 }
 
@@ -90,15 +122,14 @@ static void prescale_tick(timer_t* timer)
     }
 }
 
+static bool prescaling_enabled(timer_t* timer)
+{
+    return (timer->prescale_value >= MIN_PRESCALE_VALUE);
+}
 
 static void tick(timer_t* timer)
 {
-    if(CHECK_BIT_CLEAR(timer->control_bits, TIMER_ON_BIT))
-        return;
-
-    uint32_t previous_timer_value = timer->timer_value;
-
-    if(timer->prescale_value < MIN_PRESCALE_VALUE)
+    if(!prescaling_enabled(timer))
     {
         timer->timer_value++;
     }
@@ -106,27 +137,15 @@ static void tick(timer_t* timer)
     {
         prescale_tick(timer);
     }
-    
-    if(timer->timer_value < previous_timer_value)
-    {
-        //timer overflow detected!
-        update_interrupt_status(timer);
-    }
-
 }
 
-static void update_interrupt_status(timer_t* timer)
+// This function sets the timer overflow flag. It is only allowed to set this
+// flag (rather than clear it, too) because code running in the foreground on
+// the processor may want to poll the flag to see when the timer overflows
+// (rather than using a timer interrupt).
+static void update_timer_overflow_status(timer_t* timer)
 {
-    //we still set the bit status here because programs may want to poll this
-    //bit instead of using the interrupt in order to busy-wait
     BIT_SET(timer->control_bits, TIMER_INTERRUPT_FLAG_BIT);
-    
-    if(CHECK_BIT_SET(timer->control_bits, TIMER_INTERRUPT_ENABLE_BIT))
-    {
-        //at this point, interrupts are enabled and the overflow interrupt has
-        //occured, so we need to signal the processor
-        request_interrupt();
-    }
 }
 
 
