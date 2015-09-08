@@ -53,9 +53,9 @@ computer_t* make_computer(cpu_t* cpu,
 
 //This is our CPU "factory" function, which handles the initialization and dependency
 //injection to the CPU "constructor" separately
-cpu_t* build_cpu(memory_bus_t* bus)
+cpu_t* build_cpu(memory_bus_t* bus, interrupt_controller_t* ic)
 {
-    cpu_t* cpu = make_cpu(bus);
+    cpu_t* cpu = make_cpu(bus, ic);
     init_cpu(cpu);
 
     return cpu;
@@ -69,14 +69,14 @@ computer_t* build_computer(void)
     const uint16_t DISPLAY_HEIGHT = 480;
     const uint32_t NUM_MEM_LOCATIONS = 1024;
     memory_bus_t* bus = make_memory_bus();
+    interrupt_controller_t* ic = make_interrupt_controller();
 
-    cpu_t* cpu = build_cpu(bus);
+    cpu_t* cpu = build_cpu(bus, ic);
     memory_t* RAM = make_memory(NUM_MEM_LOCATIONS);
     //DEBUG
     graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     keyboard_t* keyboard = create_keyboard();
     timer_t* sys_timer = make_timer(IRQ_1);
-    interrupt_controller_t* ic = make_interrupt_controller();
 
     computer_t* computer = make_computer(cpu, RAM, bus, display, keyboard, sys_timer, ic);
     computer_reset(computer);

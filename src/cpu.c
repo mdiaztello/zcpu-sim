@@ -10,19 +10,23 @@
 #include "cpu_private.h"
 #include "cpu_ops.h"
 #include "bit_twiddling.h"
+#include "interrupt_controller.h"
+#include "memory_map.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 
+struct cpu backup_cpu; //holds backups of our cpu's registers, etc while in interrupt mode
 
-enum cpu_pipeline_stage_t { FETCH1, FETCH2, DECODE, MEMORY1, MEMORY2, EXECUTE };
+enum cpu_pipeline_stage_t { INTERRUPT, FETCH1, FETCH2, DECODE, MEMORY1, MEMORY2, EXECUTE };
 
-enum cpu_pipeline_stage_t pipeline_stage = FETCH1;
+enum cpu_pipeline_stage_t pipeline_stage = INTERRUPT;
 
 static void install_opcodes(cpu_t* cpu);
 static void update_pc(cpu_t* cpu);
+static void interrupt(cpu_t* cpu);
 static void fetch1(cpu_t* cpu);
 static void fetch2(cpu_t* cpu);
 static void decode(cpu_t* cpu);
@@ -32,7 +36,7 @@ static void execute(cpu_t* cpu);
 //static void write_back(cpu_t* cpu);
 
 typedef void (*pipeline_stage_t)(cpu_t*);
-pipeline_stage_t pipeline_stages[7] = { &fetch1, &fetch2, &decode, &memory1, &memory2, &execute};
+pipeline_stage_t pipeline_stages[] = { &interrupt, &fetch1, &fetch2, &decode, &memory1, &memory2, &execute};
 
 
 static uint32_t* get_source_reg1(cpu_t* cpu);
@@ -182,6 +186,18 @@ static uint32_t get_branch_pc_offset(cpu_t* cpu)
     return GET_BITS_IN_RANGE(cpu->IR, 0, 22);
 }
 
+static void interrupt(cpu_t* cpu)
+{
+    if(interrupt_requested(cpu->ic))
+    {
+        beacon();
+        exit(-1);
+        backup_cpu = *cpu;
+        cpu->PC = INTERRUPT_VECTOR_TABLE_START + get_interrupt_source(cpu->ic);
+    }
+
+    pipeline_stage = FETCH1;
+}
 
 static void fetch1(cpu_t* cpu)
 {
@@ -293,7 +309,7 @@ static void memory2(cpu_t* cpu)
             //store instructions don't really have anything to execute, they
             //are purely memory access commands, so we can go back to fetch
             //instead of executing nothing
-            pipeline_stage = FETCH1;
+            pipeline_stage = INTERRUPT;
         }
     }
     else
@@ -306,7 +322,7 @@ static void execute(cpu_t* cpu)
 {
     cpu_op instruction = get_instruction(cpu);
     instruction(cpu);
-    pipeline_stage = FETCH1;
+    pipeline_stage = INTERRUPT;
 }
 
 static cpu_op get_instruction(cpu_t* cpu)
@@ -328,10 +344,11 @@ static void update_pc(cpu_t* cpu)
 
 //This just makes the raw cpu object, it doesn't do any of the work to "build" it
 //FIXME: add cache parameter later
-cpu_t* make_cpu(memory_bus_t* bus)
+cpu_t* make_cpu(memory_bus_t* bus, interrupt_controller_t* ic)
 {
     cpu_t* new_cpu = calloc(1, sizeof(struct cpu));
     new_cpu->bus = bus;
+    new_cpu->ic = ic;
     return new_cpu;
 }
 

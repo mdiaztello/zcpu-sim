@@ -163,8 +163,8 @@ uint32_t program[] = {
 #define FRAME_BUFFER_START (0x1100)
 #define BLUE (0x0000FFFF)
 #define SCREEN_WIDTH 640
-#define BOX_HEIGHT  300
-#define BOX_WIDTH   300
+#define BOX_HEIGHT  100
+#define BOX_WIDTH   100
 #define STARTING_POSITION_IN_FRAME_BUFFER   (320)
 uint32_t program[] = {
     CLEAR(R0),      //the start of the frame buffer

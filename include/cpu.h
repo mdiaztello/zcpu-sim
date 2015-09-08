@@ -13,11 +13,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "memory_bus.h"
+#include "interrupt_controller.h"
 
 
 typedef struct cpu cpu_t;
 
-cpu_t* make_cpu(memory_bus_t* bus);
+cpu_t* make_cpu(memory_bus_t* bus, interrupt_controller_t* ic);
 void cpu_reset(cpu_t* cpu);
 void init_cpu(cpu_t* cpu);
 void destroy_cpu(cpu_t* cpu);

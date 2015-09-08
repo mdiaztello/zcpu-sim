@@ -10,6 +10,7 @@
 
 #include "cpu.h" //for the cpu struct typedef and the cpu_op typdef
 #include "memory_bus.h" 
+#include "interrupt_controller.h"
 
 #define NUM_REGISTERS 32
 #define NUM_INSTRUCTIONS 64
@@ -30,6 +31,7 @@ struct cpu
     uint32_t MDR;           //memory data register
     uint32_t MAR;           //memory address register
     memory_bus_t* bus;      //represents our interface to RAM and special devices
+    interrupt_controller_t* ic; //this is the interface to peripheral devices (timers, serial, etc)
 
     uint32_t  opcode;           //the type of instruction we are executing
     uint32_t* source_reg1;      //source register 1 for an integer/logical operation

@@ -11,7 +11,7 @@
 
 #define Hz (1u)
 #define MHz (1000000*Hz)
-#define CPU_FREQUENCY (25*MHz)
+#define CPU_FREQUENCY (3*MHz)
 
 
 enum timer_control_bits_t
@@ -56,13 +56,21 @@ timer_t* make_timer(uint8_t IRQ_number)
     //interrupts masked when first created
     timer_t* timer =  calloc(1, sizeof(struct timer_t));
     timer->IRQ_number = IRQ_number;
+
+    //DEBUG
+
+    BIT_SET(timer->control_bits, TIMER_ON_BIT);
+    BIT_SET(timer->control_bits, TIMER_INTERRUPT_ENABLE_BIT);
+    timer->prescale_value = 0;
+    //timer->timer_value = UINT32_MAX - CPU_FREQUENCY;
+    timer->timer_value = 0;
+
     return timer;
 }
 
 
 void timer_cycle(timer_t* timer, memory_bus_t* bus, interrupt_controller_t* ic)
 {
-
     //timer register manipulation here
 
         //FIXME: figure out what I want to do with the timer-specific
@@ -82,14 +90,6 @@ void timer_cycle(timer_t* timer, memory_bus_t* bus, interrupt_controller_t* ic)
     }
 
     update_interrupt_status(timer, ic);
-
-    //DEBUG
-    
-    if(timer->timer_value == CPU_FREQUENCY)
-    {
-        timer->timer_value = 0;
-        printf("DEBUG: + 1 second\n");
-    }
 }
 
 static void update_interrupt_status(timer_t* timer, interrupt_controller_t* ic)
@@ -124,7 +124,7 @@ static void prescale_tick(timer_t* timer)
 
 static bool prescaling_enabled(timer_t* timer)
 {
-    return (timer->prescale_value >= MIN_PRESCALE_VALUE);
+    return (MIN_PRESCALE_VALUE <= timer->prescale_value);
 }
 
 static void tick(timer_t* timer)
