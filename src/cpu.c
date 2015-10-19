@@ -188,8 +188,9 @@ static uint32_t get_branch_pc_offset(cpu_t* cpu)
 
 static void interrupt(cpu_t* cpu)
 {
-    if(interrupt_requested(cpu->ic))
+    if(interrupt_requested(cpu->ic) && !interrupt_in_process(cpu))
     {
+        set_interrupt_in_process_status(cpu, true);
         beacon();
         exit(-1);
         backup_cpu = *cpu;

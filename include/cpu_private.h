@@ -52,6 +52,8 @@ struct cpu
     uint32_t* store_source_reg;      //the source register for store instructions
 
     uint8_t instruction_condition_codes;    //the condition codes extracted from the current instruction (for comparison against the CCR)
+    //The process status register contains information about the currently executing process (such as whether an interrupt is currently in process)
+    uint32_t process_status_reg;        //process_status_reg[0] = INTERRUPT_IN_PROCESS bit
 
     //pointer to table of function pointers representing the opcodes goes here
     opcode_table_t* opcodes;

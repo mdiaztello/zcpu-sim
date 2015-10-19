@@ -11,22 +11,43 @@ static cpu_op instruction_table[NUM_INSTRUCTIONS];
 
 enum condition_code_register_bit_position_t { POSITIVE_BIT = 0, ZERO_BIT = 1, NEGATIVE_BIT = 2 };
 
+static const uint8_t INTERRUPT_IN_PROCESS_BIT = 0;
 
 //sets the condition code bits according to the result of the last ALU operation
 //FIXME: Do I want or need additional condition codes?
 void update_condition_code_bits(cpu_t* cpu, uint32_t result)
 {
+    cpu->CCR = 0; //condition code bits are mutually exclusive
+    const uint8_t SIGN_BIT = 31;
     if(0 == result)
     {
-        cpu->CCR = (0x00000002); //set zero bit of CCR
+        BIT_SET(cpu->CCR, ZERO_BIT);
     }
-    else if(result >> 31) //negative result b/c of sign bit
+    else if(CHECK_BIT_SET(result, SIGN_BIT)) //negative result b/c of sign bit
     {
-        cpu->CCR = 0x00000004; //set negative bit of CCR
+        BIT_SET(cpu->CCR, NEGATIVE_BIT);
     }
     else
     {
-        cpu->CCR = 0x00000001; //set positive bit of CCR
+        BIT_SET(cpu->CCR, POSITIVE_BIT);
+    }
+}
+
+
+bool interrupt_in_process(cpu_t* cpu)
+{
+    return CHECK_BIT_SET(cpu->process_status_reg, INTERRUPT_IN_PROCESS_BIT);
+}
+
+void set_interrupt_in_process_status(cpu_t* cpu, bool interrupt_in_process)
+{
+    if(interrupt_in_process)
+    {
+        BIT_SET(cpu->process_status_reg, INTERRUPT_IN_PROCESS_BIT);
+    }
+    else
+    {
+        BIT_CLEAR(cpu->process_status_reg, INTERRUPT_IN_PROCESS_BIT);
     }
 }
 
