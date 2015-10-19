@@ -574,7 +574,7 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, jump_pc_relative_encodes_offsets_correctly)
 }
 
 //BRANCH instruction tests
-TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_offsets_correctly)
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_condition_codes_correctly)
 {
     CHECK( BRNZP(0x00) == 0x47800000 )
     CHECK( BRNZ(0x00) == 0x47000000 )
@@ -587,7 +587,7 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_offsets_correctly)
 
 }
 
-TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_condition_codes_correctly)
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_offsets_correctly)
 {
     //zero offset
     CHECK( BRA(0x00) == 0x47800000 )
