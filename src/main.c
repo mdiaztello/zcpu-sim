@@ -199,6 +199,7 @@ uint32_t program[] = {
     ADD_IMMEDIATE(R5, R5, -1),  //decrement box row
     BRP(-12),
 
+    BRA(-26),       //loop back to beginning
 
     HCF
 };
