@@ -27,10 +27,16 @@ INCLUDE_DIRS =\
   $(SDL_INCLUDE)
 
 
+
 CPPUTEST_WARNINGFLAGS = -Wall -Wswitch-default -Wno-write-strings
 
-include $(CPPUTEST_HOME)/build/MakefileWorker.mk
+# Need to turn off memory leak detection in CppUTest for now because when I try
+# to compile the simulator, there are undefined references to their malloc/free
+# monitoring functions that I don't want compiled into the program (which
+# prevent the compilation from completing)
+CPPUTEST_USE_MEM_LEAK_DETECTION = N
 
+include $(CPPUTEST_HOME)/build/MakefileWorker.mk
 
 
 
@@ -50,7 +56,7 @@ CFLAGS := -Wall -Wextra -std=c99 -g -O2
 LDFLAGS = $(SDL_LIB)
 
 simulator: $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LDFLAGS) 
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LDFLAGS)
 
 
 .PHONY: my_clean
