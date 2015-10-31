@@ -16,6 +16,9 @@
 // order to relay that info to the processor, which will use the IRQ number to
 // determine which interrupt service routine to jump to.
 
+//TODO: make sure to add some mechanism for globally disabling interrupts (or
+//at least the maskable interrupts)
+
 struct interrupt_controller_t
 {
     // Each interrupt request in the queue contains the 8-bit interrupt vector
