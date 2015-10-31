@@ -96,6 +96,7 @@ TEST(CPU_INSTRUCTION_TESTS, cpu_test_helper_functions_working_correctly)
 }
 
 //TESTS FOR ANDING TWO REGISTERS AND WRITING OUTPUT TO A THIRD REG
+//FIXME: All of these ALU instruction tests also need to verify the condition code bits
 
 TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_zero_yields_zero)
 {
