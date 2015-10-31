@@ -192,3 +192,37 @@ TEST(QUEUE_TESTS, queue_is_a_FIFO_structure)
     queue_return_data = queue_get(queue);
     LONGS_EQUAL(4, queue_return_data.value);
 }
+
+TEST(QUEUE_TESTS, queue_works_properly_even_after_heavy_use)
+{
+    //checks to see that the queue will work properly after it has been totally
+    //filled and then totally emptied
+
+    for(int i = 0; i < TEST_QUEUE_SIZE; i++)
+    {
+        queue_put(queue, i+100);
+    }
+    CHECK(queue_is_full(queue) == true);
+
+    for(int i = 0; i < TEST_QUEUE_SIZE; i++)
+    {
+        queue_return_data_t queue_return_data = queue_get(queue);
+        LONGS_EQUAL(i+100, queue_return_data.value);
+    }
+    CHECK(queue_is_empty(queue) == true);
+
+    for(int i = 0; i < TEST_QUEUE_SIZE; i++)
+    {
+        queue_put(queue, i+20);
+    }
+    CHECK(queue_is_full(queue) == true);
+
+    for(int i = 0; i < TEST_QUEUE_SIZE; i++)
+    {
+        queue_return_data_t queue_return_data = queue_get(queue);
+        LONGS_EQUAL(i+20, queue_return_data.value);
+    }
+    CHECK(queue_is_empty(queue) == true);
+}
+
+
