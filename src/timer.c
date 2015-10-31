@@ -87,9 +87,9 @@ void timer_cycle(timer_t* timer, memory_bus_t* bus, interrupt_controller_t* ic)
     if(timer->timer_value < previous_timer_value)
     {
         update_timer_overflow_status(timer);
+        update_interrupt_status(timer, ic);
     }
 
-    update_interrupt_status(timer, ic);
 }
 
 static void update_interrupt_status(timer_t* timer, interrupt_controller_t* ic)
@@ -99,10 +99,6 @@ static void update_interrupt_status(timer_t* timer, interrupt_controller_t* ic)
         //at this point, interrupts are enabled and the overflow interrupt has
         //occured, so we need to signal the processor
         request_interrupt(ic, timer->IRQ_number);
-    }
-    else
-    {
-        clear_interrupt(ic, timer->IRQ_number);
     }
 }
 

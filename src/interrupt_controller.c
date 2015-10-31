@@ -5,56 +5,53 @@
 #include <stdlib.h>
 
 #include "interrupt_controller.h"
+#include "queue.h"
+
+// The interrupt controller is the hardware module that interacts with the
+// peripheral devices that are capable of requesting interrupts from the CPU.
+// Peripherals simulate pulling on an interrupt request line by calling
+// request_interrupt() with their assigned IRQ number. The actual hardware
+// would have individual input lines for each possible interrupt source and
+// would convert the asserted interrupt line into the appropriate IRQ number in
+// order to relay that info to the processor, which will use the IRQ number to
+// determine which interrupt service routine to jump to.
 
 struct interrupt_controller_t
 {
-    uint8_t interrupt_source;
-    bool interrupt_requested;
-    bool irq_sources[MAX_NUM_IRQS];
+    // Each interrupt request in the queue contains the 8-bit interrupt vector
+    // number of the device requesting the interrupt
+    queue_t* interrupt_requests;
 };
 
 interrupt_controller_t* make_interrupt_controller(void)
 {
     interrupt_controller_t* ic = calloc(1, sizeof(struct interrupt_controller_t));
-    ic->interrupt_source = 0;
-    ic->interrupt_requested = false;
+    ic->interrupt_requests = queue_create((uint8_t)MAX_NUM_IRQS);
     return ic;
 }
 
-void update_interrupt_request_status(interrupt_controller_t* ic)
+void destroy_interrupt_controller(interrupt_controller_t* ic)
 {
-    bool interrupt_source_found = false;
-    ic->interrupt_requested = false;
-
-    for(int i = 0; i < MAX_NUM_IRQS; i++)
-    {
-        if(!interrupt_source_found && ic->irq_sources[i])
-        {
-            interrupt_source_found = true;
-            ic->interrupt_source = i;
-        }
-        ic->interrupt_requested = ic->interrupt_requested || ic->irq_sources[i];
-    }
+    free(ic->interrupt_requests);
+    free(ic);
 }
 
+//External interface function that hardware peripherals call to make interrupt
+//requests
 void request_interrupt(interrupt_controller_t* ic, uint8_t irq_number)
 {
-    ic->irq_sources[irq_number] = true;
-    update_interrupt_request_status(ic);
+    queue_put(ic->interrupt_requests, irq_number);
 }
 
-void clear_interrupt(interrupt_controller_t* ic, uint8_t irq_number)
-{
-    ic->irq_sources[irq_number] = false;
-    update_interrupt_request_status(ic);
-}
-
+//Reports back if at least one peripheral device has requested an interrupt
 bool interrupt_requested(interrupt_controller_t* ic)
 {
-    return ic->interrupt_requested;
+    return !queue_is_empty(ic->interrupt_requests);
 }
 
+//Precondition: interrupt_requested() must be true in order for this function to work
 uint8_t get_interrupt_source(interrupt_controller_t* ic)
 {
-    return ic->interrupt_source;
+    queue_return_data_t interrupt_request =  queue_get(ic->interrupt_requests);
+    return interrupt_request.value;
 }
