@@ -95,8 +95,29 @@ TEST(CPU_INSTRUCTION_TESTS, cpu_test_helper_functions_working_correctly)
     CHECK(mock_bus.device_ready == true);
 }
 
+void test_single_instruction( cpu_t* cpu_to_test,
+                              memory_bus_t* mock_bus,
+                              uint32_t instruction_to_execute,
+                              uint8_t destination_reg_name,
+                              uint8_t source_reg1_name,
+                              uint8_t source_reg2_name,
+                              uint32_t source_reg1_value,
+                              uint32_t source_reg2_value,
+                              uint32_t expected_test_value )
+{
+    set_register_value(cpu_to_test, source_reg1_name, source_reg1_value);
+    set_register_value(cpu_to_test, source_reg2_name, source_reg2_value);
+
+    set_expected_instruction(mock_bus, instruction_to_execute);
+
+    single_step(cpu_to_test, mock_bus);
+
+    LONGS_EQUAL(expected_test_value, get_register_value(cpu_to_test, destination_reg_name));
+}
+
 //TESTS FOR ANDING TWO REGISTERS AND WRITING OUTPUT TO A THIRD REG
 //FIXME: All of these ALU instruction tests also need to verify the condition code bits
+
 
 TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_zero_yields_zero)
 {
@@ -104,17 +125,16 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_zero_yields_zero)
     interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    set_register_value(cpu, R0, (uint32_t)(~0));
-    set_register_value(cpu, R1, 0x00);
+    test_single_instruction( cpu,                          // cpu_to_test
+                             &mock_bus,                    // mock_bus
+                             (AND(R0, R0, R1)),            // instruction_to_execute
+                             R0,                           // destination_reg_name
+                             R0,                           // source_reg1_name
+                             R1,                           // source_reg2_name
+                             (uint32_t)(~0),               // source_reg1_value
+                             0x00,                         // source_reg2_value
+                             ((uint32_t)(~0) & (0x00)));   // expected_test_value
 
-    const uint32_t EXPECTED_VALUE = 0x00;
-    const uint32_t instruction = (AND(R0, R0, R1));
-
-    set_expected_instruction(&mock_bus, instruction);
-
-    single_step(cpu, &mock_bus);
-
-    LONGS_EQUAL(EXPECTED_VALUE, get_register_value(cpu, R0));
 }
 
 TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_all_ones_does_not_change_other_register)
