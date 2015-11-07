@@ -441,3 +441,103 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_works_with_arbitrary_source_and_destinatio
                              SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
+
+
+//TESTS FOR XOR-ING THE CONTENTS OF TWO REGISTERS AND WRITING THE OUTPUT TO A THIRD REG
+//FIXME: All of these ALU instruction tests also need to verify the condition code bits
+
+TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_zero_yields_a_result_identical_to_the_value_of_the_other_register)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R1;
+    const uint32_t SOURCE_REG1_VALUE = 0x00;
+    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG2_VALUE;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_all_ones_is_the_same_as_inverting_the_other_register)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R1;
+    const uint32_t SOURCE_REG1_VALUE = ALL_ONES;
+    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = ~SOURCE_REG2_VALUE;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, XORING_works_correctly_with_arbitrary_values)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R1;
+    const uint32_t SOURCE_REG1_VALUE = 0x000FF000;
+    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE ^ SOURCE_REG2_VALUE;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, XORING_works_with_arbitrary_source_and_destination_registers)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R17;
+    const uint8_t SOURCE_REG1_NAME = R5;
+    const uint8_t SOURCE_REG2_NAME = R29;
+    const uint32_t SOURCE_REG1_VALUE = 0x000FF000;
+    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE ^ SOURCE_REG2_VALUE;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
