@@ -240,7 +240,7 @@ TEST(CPU_INSTRUCTION_TESTS, result_of_ANDING_two_registers_can_be_written_to_any
                              EXPECTED_TEST_VALUE);
 }
 
-//TESTS FOR ANDING TWO REGISTERS AND WRITING OUTPUT TO A THIRD REG
+//TESTS FOR ORING TWO REGISTERS AND WRITING OUTPUT TO A THIRD REG
 //FIXME: All of these ALU instruction tests also need to verify the condition code bits
 
 TEST(CPU_INSTRUCTION_TESTS, OR_with_register_value_of_zero_yields_a_result_identical_to_the_value_of_the_other_register)
@@ -352,6 +352,85 @@ TEST(CPU_INSTRUCTION_TESTS, result_of_ORING_two_registers_can_be_written_to_any_
     const uint32_t SOURCE_REG2_VALUE = 0x5A5A5A5A;
     const uint32_t INSTRUCTION_TO_EXECUTE = (OR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE | SOURCE_REG2_VALUE;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+
+//TESTS FOR INVERTING THE CONTENTS OF A REGISTER AND WRITING TO A DIFFERENT REGISTER
+//FIXME: All of these ALU instruction tests also need to verify the condition code bits
+
+TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_zero_yields_all_ones)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t VALUE_UNUSED = 77;
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = VALUE_UNUSED;
+    const uint32_t SOURCE_REG1_VALUE = 0x00;
+    const uint32_t SOURCE_REG2_VALUE = VALUE_UNUSED;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG_NAME, SOURCE_REG1_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = ALL_ONES;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_all_ones_yields_zero)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t VALUE_UNUSED = 77;
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = VALUE_UNUSED;
+    const uint32_t SOURCE_REG1_VALUE = ALL_ONES;
+    const uint32_t SOURCE_REG2_VALUE = VALUE_UNUSED;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG_NAME, SOURCE_REG1_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = 0x00;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, INVERTING_works_with_arbitrary_source_and_destination_registers)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t VALUE_UNUSED = 77;
+    const uint8_t DEST_REG_NAME = R17;
+    const uint8_t SOURCE_REG1_NAME = R31;
+    const uint8_t SOURCE_REG2_NAME = VALUE_UNUSED;
+    const uint32_t SOURCE_REG1_VALUE = 0xA0B0C0D0;
+    const uint32_t SOURCE_REG2_VALUE = VALUE_UNUSED;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG_NAME, SOURCE_REG1_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = ~0xA0B0C0D0;
 
     test_single_instruction( cpu, &mock_bus,
                              INSTRUCTION_TO_EXECUTE,
