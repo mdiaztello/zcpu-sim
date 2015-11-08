@@ -164,7 +164,6 @@ void cpu_xor(cpu_t* cpu)
 
 void cpu_load_pc_relative(cpu_t* cpu)
 {
-    beacon();
     *cpu->destination_reg1 = cpu->MDR;
 }
 
