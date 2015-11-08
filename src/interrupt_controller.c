@@ -29,7 +29,7 @@ struct interrupt_controller_t
 interrupt_controller_t* make_interrupt_controller(void)
 {
     interrupt_controller_t* ic = calloc(1, sizeof(struct interrupt_controller_t));
-    ic->interrupt_requests = queue_create((uint8_t)MAX_NUM_IRQS);
+    ic->interrupt_requests = queue_create(MAX_NUM_IRQS);
     return ic;
 }
 

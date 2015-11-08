@@ -55,6 +55,13 @@ TEST(QUEUE_TESTS, queue_has_correct_size_on_creation)
     LONGS_EQUAL(TEST_QUEUE_SIZE, queue_get_size(queue));
 }
 
+TEST(QUEUE_TESTS, queue_can_not_have_size_zero)
+{
+    queue_t* q = queue_create(0);
+    CHECK(NULL == q);
+}
+
+
 TEST(QUEUE_TESTS, queue_empty_on_creation)
 {
     CHECK(queue_is_empty(queue) == true);

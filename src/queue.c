@@ -6,15 +6,18 @@
 
 struct queue_t
 {
-    uint8_t size;
-    uint8_t num_elements_in_queue;
+    size_t size;
+    size_t num_elements_in_queue;
     uint8_t* data;
-    uint8_t head;
-    uint8_t tail;
+    size_t head;
+    size_t tail;
 };
 
-queue_t* queue_create(uint8_t queue_size)
+queue_t* queue_create(size_t queue_size)
 {
+    if(queue_size < 1)
+        return NULL;
+
     queue_t* queue = calloc(1, sizeof(queue_t));
     queue->data = calloc(1, queue_size*sizeof(*(queue->data)));
     queue->size = queue_size;

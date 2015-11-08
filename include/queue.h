@@ -6,6 +6,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 typedef struct queue_t queue_t;
 
@@ -19,7 +20,7 @@ struct queue_return_data_t
 
 typedef struct queue_return_data_t queue_return_data_t;
 
-queue_t* queue_create(uint8_t queue_size);
+queue_t* queue_create(size_t queue_size);
 void queue_destroy(queue_t* queue);
 
 bool queue_is_empty(queue_t* queue);
