@@ -227,7 +227,6 @@ void cpu_add(cpu_t* cpu)
     update_condition_code_bits(cpu, *cpu->destination_reg1);
 }
 
-
 //  SUB:
 //      opcode = 000101
 //      e.g. SUB <destination_reg1> <source_reg1> <source_reg2>
@@ -251,6 +250,24 @@ void cpu_sub(cpu_t* cpu)
     update_condition_code_bits(cpu, *cpu->destination_reg1);
 }
 
+//  CALL (pc-relative)
+//      opcode = 010010
+//      e.g. CALL <pc-relative-offset>
+//          6-bits + 26-bits
+
+void cpu_call(cpu_t* cpu)
+{
+    //R30 on our machine will be the return address to come back to for subroutines
+    cpu->registers[30] = cpu->PC;
+    cpu_jump_pc_relative(cpu);
+}
+
+void cpu_callr(cpu_t* cpu)
+{
+    cpu->registers[30] = cpu->PC;
+    //FIXME: implement the rest when we've implemented a jump with base_reg + offset instruction
+}
+
 void cpu_nop(cpu_t* cpu)
 {
     if(cpu != NULL)
@@ -263,7 +280,7 @@ static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
     &cpu_and, &cpu_or, &cpu_not, &cpu_xor, &cpu_add, &cpu_sub, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
-    &cpu_jump_pc_relative, &cpu_branch, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_jump_pc_relative, &cpu_branch, &cpu_call, &cpu_callr, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
