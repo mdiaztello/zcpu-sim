@@ -541,3 +541,228 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_works_with_arbitrary_source_and_destination_r
                              SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
+
+//TESTS FOR ADDING THE CONTENTS OF TWO REGISTERS AND WRITING THE OUTPUT TO A THIRD REG
+//FIXME: All of these ALU instruction tests also need to verify the condition code bits
+
+TEST(CPU_INSTRUCTION_TESTS, ADDING_zero_to_a_register_changes_nothing)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R1;
+    const uint32_t SOURCE_REG1_VALUE = 0x00;
+    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG2_VALUE;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, ADDING_two_values_gives_the_expected_result)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R1;
+    const uint32_t SOURCE_REG1_VALUE = 0x0EDCBA98;
+    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = 0x0FFFFFFF;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, ADDING_one_to_a_value_of_all_ones_overflows_and_yields_zero)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R16;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R23;
+    const uint32_t SOURCE_REG1_VALUE = 0xFFFFFFFF;
+    const uint32_t SOURCE_REG2_VALUE = 0x01;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = 0x00000000;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, ADDING_negative_twos_complement_numbers_to_positive_values_works_properly)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R16;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R23;
+    const uint32_t SOURCE_REG1_VALUE = 0xFFFFFFFF; //-1
+    const uint32_t SOURCE_REG2_VALUE = 0x00000200;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = 0x000001FF; // -1 + 0x200 = 0x1FF
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, ADDING_a_pair_of_twos_complement_negative_numbers_works_correctly)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R16;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R23;
+    const uint32_t SOURCE_REG1_VALUE = 0xFFFFFFFF; // -1
+    const uint32_t SOURCE_REG2_VALUE = 0xFFFFFE00; // -0x200
+    const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = 0xFFFFFDFF;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+
+//TESTS FOR SUBTRACTING THE CONTENTS OF TWO REGISTERS AND WRITING THE OUTPUT TO A THIRD REG
+//FIXME: All of these ALU instruction tests also need to verify the condition code bits
+
+TEST(CPU_INSTRUCTION_TESTS, SUBBING_zero_from_a_register_changes_nothing)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R1;
+    const uint32_t SOURCE_REG1_VALUE = 0x01234567;
+    const uint32_t SOURCE_REG2_VALUE = 0x00;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, SUBBING_one_from_zero_yields_all_ones)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R0;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R1;
+    const uint32_t SOURCE_REG1_VALUE = 0x00;
+    const uint32_t SOURCE_REG2_VALUE = 0x01;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = ALL_ONES;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_register_from_itself_yields_zero)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R16;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R0;
+    const uint32_t SOURCE_REG1_VALUE = 0xFFFFFFFF;
+    const uint32_t SOURCE_REG2_VALUE = 0xFFFFFFFF;
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = 0x00000000;
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_twos_complement_negative_number_from_a_positive_number_is_the_same_as_adding)
+{
+    memory_bus_t mock_bus;
+    interrupt_controller_t* ic = make_interrupt_controller();
+    cpu_t* cpu = build_cpu(&mock_bus, ic);
+
+    const uint8_t DEST_REG_NAME = R16;
+    const uint8_t SOURCE_REG1_NAME = R0;
+    const uint8_t SOURCE_REG2_NAME = R23;
+    const uint32_t SOURCE_REG1_VALUE = 0x00000200;
+    const uint32_t SOURCE_REG2_VALUE = 0xFFFFFFFF; //-1
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const uint32_t EXPECTED_TEST_VALUE = 0x00000201; // 0x200 - (-1) = 0x200
+
+    test_single_instruction( cpu, &mock_bus,
+                             INSTRUCTION_TO_EXECUTE,
+                             DEST_REG_NAME,
+                             SOURCE_REG1_NAME,
+                             SOURCE_REG2_NAME,
+                             SOURCE_REG1_VALUE,
+                             SOURCE_REG2_VALUE,
+                             EXPECTED_TEST_VALUE);
+}
+
+

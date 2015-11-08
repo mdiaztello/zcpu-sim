@@ -207,7 +207,7 @@ void cpu_branch(cpu_t* cpu)
 //      opcode = 000100
 //      e.g. ADD <destination_reg1> <source_reg1> <source_reg2>
 //           6-bits + 5-bits + 5-bits + 5 bits + 11-unused-bits
-//  ADD_IMMEDIATE
+//  ADD_IMMEDIATE:
 //      opcode = 000100
 //      e.g. ADD <destination_reg1> <source_reg1> <immediatel_val> <immediate-flag>
 //           6-bits + 5-bits + 5-bits + 15-bit-immediate + 1-bit-flag
@@ -227,6 +227,30 @@ void cpu_add(cpu_t* cpu)
     update_condition_code_bits(cpu, *cpu->destination_reg1);
 }
 
+
+//  SUB:
+//      opcode = 000101
+//      e.g. SUB <destination_reg1> <source_reg1> <source_reg2>
+//           6-bits + 5-bits + 5-bits + 5 bits + 11-unused-bits
+//  SUB_IMMEDIATE:
+//      opcode = 000101
+//      e.g. SUB <destination_reg1> <source_reg1> <immediatel_val> <immediate-flag>
+//           6-bits + 5-bits + 5-bits + 15-bit-immediate + 1-bit-flag
+
+void cpu_sub(cpu_t* cpu)
+{
+    if(!cpu->immediate_mode)
+    {
+        *cpu->destination_reg1 = *cpu->source_reg1 - *cpu->source_reg2;
+    }
+    else
+    {
+        *cpu->destination_reg1 = *cpu->source_reg1 - cpu->ALU_immediate_bits;
+    }
+
+    update_condition_code_bits(cpu, *cpu->destination_reg1);
+}
+
 void cpu_nop(cpu_t* cpu)
 {
     if(cpu != NULL)
@@ -237,7 +261,7 @@ void cpu_nop(cpu_t* cpu)
 
 static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
-    &cpu_and, &cpu_or, &cpu_not, &cpu_xor, &cpu_add, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_and, &cpu_or, &cpu_not, &cpu_xor, &cpu_add, &cpu_sub, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
     &cpu_jump_pc_relative, &cpu_branch, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
