@@ -32,6 +32,12 @@ enum opcode_t
 
     //Branch instructions
     OPCODE_BRANCH  = (0x11),
+    
+    //Call instructions
+    OPCODE_CALL    = (0x12),
+    OPCODE_CALLR   = (0x13),
+
+    OPCODE_JUMPR   = (0x14),
 };
 
 #endif

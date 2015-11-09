@@ -104,6 +104,8 @@
 #define JUMP(pc_relative_offset)                                            JUMP_PC_RELATIVE(OPCODE_JUMP, pc_relative_offset)
 //The venerable Halt-catch-fire instruction!
 #define HCF                                                                 JUMP(-1)    //spin forever
+#define JUMPR(base_reg, offset)                                             BASE_PLUS_OFFSET(OPCODE_JUMPR, 0x00, base_reg, offset)
+#define RETURN                                                              JUMPR(R30, 0)
 
 //BRANCH INSTRUCTIONS
 #define BRNZP(pc_relative_offset)                                           BRANCH_PC_RELATIVE(OPCODE_BRANCH, 1, 1, 1, pc_relative_offset)
@@ -119,5 +121,8 @@
 #define BRA                                                                 BRNZP
 #define BR                                                                  BRNZP
 
+//CALL INSTRUCTIONS
+#define CALL(pc_relative_offset)                                            JUMP_PC_RELATIVE(OPCODE_CALL, pc_relative_offset)
+#define CALLR(base_reg, offset)                                             BASE_PLUS_OFFSET(OPCODE_CALLR, 0x00, offset)
 
 #endif // __PREPROCESSOR_ASSEMBLER_H_

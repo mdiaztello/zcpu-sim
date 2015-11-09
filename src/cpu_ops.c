@@ -182,6 +182,15 @@ void cpu_jump_pc_relative(cpu_t* cpu)
     cpu->PC = cpu->PC + cpu->jump_pc_relative_offset_bits;
 }
 
+//  JUMPR (base register + Offset)
+//      opcode = 010100
+//      e.g. JUMPR <unused-bits> <base_reg> <base_reg_offset>
+//          6-bits + 5-bits-unused + 5-bits + 16-bit-offset
+void cpu_jump_base_plus_offset(cpu_t* cpu)
+{
+    cpu->PC = *cpu->base_reg + cpu->base_register_offset_bits;
+}
+
 // <BRANCH_OPCODE> <condition-flags-to-check> <pc-relative-offset>
 //     6-bits + 3-bits + 23-bits
 // BRANCH_OPCODE = 010001
@@ -265,7 +274,7 @@ void cpu_call(cpu_t* cpu)
 void cpu_callr(cpu_t* cpu)
 {
     cpu->registers[30] = cpu->PC;
-    //FIXME: implement the rest when we've implemented a jump with base_reg + offset instruction
+    cpu_jump_base_plus_offset(cpu);
 }
 
 void cpu_nop(cpu_t* cpu)
@@ -280,7 +289,7 @@ static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
     &cpu_and, &cpu_or, &cpu_not, &cpu_xor, &cpu_add, &cpu_sub, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
-    &cpu_jump_pc_relative, &cpu_branch, &cpu_call, &cpu_callr, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_jump_pc_relative, &cpu_branch, &cpu_call, &cpu_callr, &cpu_jump_base_plus_offset, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
