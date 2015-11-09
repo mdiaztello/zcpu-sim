@@ -43,9 +43,9 @@ static void quit_simulation(void)
 #define INC(x) ((ADD_IMMEDIATE((x),(x),1)))
 #define DEC(x) ((ADD_IMMEDIATE((x),(x),-1)))
 uint32_t program[] = {
-    //skip over program data: we have to do this for now because we always
-    //begin execution at location 0
-    BRA(4),
+    //Main program
+    CALL(5),    //call the "draw the box" subroutine
+    HCF,
 
     //program data
     BOX_WIDTH,
@@ -53,7 +53,7 @@ uint32_t program[] = {
     STARTING_POSITION_IN_FRAME_BUFFER,
     RED | GREEN | BLUE,
 
-    //program begins true execution here
+    //Draw the box initialization
     LOAD(PIXEL_POSITION, -3),       //STARTING_POSITION_IN_FRAME_BUFFER
     LOAD(PIXEL_VALUE, -3),          //BLUE
     LOAD(BOX_WIDTH_COUNTER, -7),    //BOX_WIDTH
@@ -70,7 +70,7 @@ uint32_t program[] = {
     DEC(BOX_HEIGHT_COUNTER),
     BRP(-8),
     
-    HCF
+    RETURN
 };
 #undef SCREEN_WIDTH
 #undef STARTING_POSITION_IN_FRAME_BUFFER
