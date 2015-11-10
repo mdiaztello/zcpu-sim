@@ -106,7 +106,7 @@ int main(void)
     computer_load_program(computer, program, PROGRAM_LENGTH);
 
     const int RUN_FOREVER = -1;
-    const int num_steps = 30;
+    //const int num_steps = 30;
     run(computer, RUN_FOREVER);
 
     quit_simulation();

@@ -28,7 +28,7 @@ INCLUDE_DIRS =\
 
 
 
-CPPUTEST_WARNINGFLAGS = -Wall -Wno-switch-default -Wno-write-strings
+CPPUTEST_WARNINGFLAGS = -Wall -Wno-switch-default -Wno-write-strings -Wno-unused-function
 
 # Need to turn off memory leak detection in CppUTest for now because when I try
 # to compile the simulator, there are undefined references to their malloc/free

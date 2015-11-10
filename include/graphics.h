@@ -9,7 +9,7 @@
 
 typedef struct graphics_t graphics_t;
 
-graphics_t* create_graphics_display(uint16_t width, uint16_t height);
+graphics_t* create_graphics_display(uint16_t width, uint16_t height, uint32_t graphics_memory_map_starting_address);
 void graphics_destroy(graphics_t* graphics);
 //updates the contents of a pixel within the framebuffer; this is our memory
 //bus's interface to the graphics subsystem

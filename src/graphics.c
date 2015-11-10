@@ -15,7 +15,6 @@
 #include "SDL.h"
 #include "memory_bus.h"
 #include "graphics.h"
-#include "memory_map.h"
 
 struct graphics_t 
 {
@@ -30,6 +29,7 @@ struct graphics_t
     SDL_Renderer* renderer;
     //This texture is where we will copy our framebuffer to for SDL to do its magic
     SDL_Texture* screen;
+    uint32_t GRAPHICS_MEMORY_MAP_START_ADDRESS;
 };
 
 
@@ -41,11 +41,12 @@ static void clear_screen(graphics_t* graphics);
 
 //creates our display for the program and initializes the frame buffer and the
 //SDL subsystem
-graphics_t* create_graphics_display(uint16_t width, uint16_t height)
+graphics_t* create_graphics_display(uint16_t width, uint16_t height, uint32_t graphics_memory_map_starting_address)
 {
     graphics_t* graphics = calloc(1, sizeof(graphics_t));
     graphics->WINDOW_HEIGHT = height;
     graphics->WINDOW_WIDTH = width;
+    graphics->GRAPHICS_MEMORY_MAP_START_ADDRESS = graphics_memory_map_starting_address;
 
     //FIXME: eventually need to handle the double buffering
     uint32_t buffer_size = graphics->WINDOW_WIDTH * graphics->WINDOW_HEIGHT * sizeof(uint32_t);
@@ -73,7 +74,7 @@ void graphics_destroy(graphics_t* graphics)
 
 void graphics_update(graphics_t* graphics, uint32_t pixel_address, uint32_t RGBA_pixel)
 {
-    uint32_t index = pixel_address - GRAPHICS_REGION_START;
+    uint32_t index = pixel_address - graphics->GRAPHICS_MEMORY_MAP_START_ADDRESS;
     graphics->frame_buffer[index] = RGBA_pixel;
 }
 

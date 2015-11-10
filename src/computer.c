@@ -75,7 +75,7 @@ computer_t* build_computer(void)
     cpu_t* cpu = build_cpu(bus, ic);
     memory_t* RAM = make_memory(NUM_MEM_LOCATIONS);
     //DEBUG
-    graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    graphics_t* display = create_graphics_display(DISPLAY_WIDTH, DISPLAY_HEIGHT, GRAPHICS_REGION_START);
     keyboard_t* keyboard = create_keyboard();
     timer_t* sys_timer = make_timer(IRQ_1);
 
