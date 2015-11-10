@@ -39,12 +39,13 @@ enum IRQ_NUMBERS
 
 typedef struct interrupt_controller_t interrupt_controller_t;
 
-interrupt_controller_t* make_interrupt_controller(void);
+interrupt_controller_t* make_interrupt_controller(uint32_t ivt_start_address);
 void destroy_interrupt_controller(interrupt_controller_t* ic);
 
 void request_interrupt(interrupt_controller_t* ic, uint8_t irq_number);
 
 bool interrupt_requested(interrupt_controller_t* ic);
 uint8_t get_interrupt_source(interrupt_controller_t* ic);
+uint32_t get_interrupt_vector_table_starting_address(interrupt_controller_t* ic);
 
 #endif

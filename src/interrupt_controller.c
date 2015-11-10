@@ -24,12 +24,14 @@ struct interrupt_controller_t
     // Each interrupt request in the queue contains the 8-bit interrupt vector
     // number of the device requesting the interrupt
     queue_t* interrupt_requests;
+    uint32_t INTERRUPT_VECTOR_TABLE_START_ADDRESS;
 };
 
-interrupt_controller_t* make_interrupt_controller(void)
+interrupt_controller_t* make_interrupt_controller(uint32_t ivt_start_address)
 {
     interrupt_controller_t* ic = calloc(1, sizeof(struct interrupt_controller_t));
     ic->interrupt_requests = queue_create(MAX_NUM_IRQS);
+    ic->INTERRUPT_VECTOR_TABLE_START_ADDRESS = ivt_start_address;
     return ic;
 }
 
@@ -57,4 +59,9 @@ uint8_t get_interrupt_source(interrupt_controller_t* ic)
 {
     queue_return_data_t interrupt_request =  queue_get(ic->interrupt_requests);
     return interrupt_request.value;
+}
+
+uint32_t get_interrupt_vector_table_starting_address(interrupt_controller_t* ic)
+{
+    return ic->INTERRUPT_VECTOR_TABLE_START_ADDRESS;
 }

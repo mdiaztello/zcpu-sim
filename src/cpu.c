@@ -11,7 +11,6 @@
 #include "cpu_ops.h"
 #include "bit_twiddling.h"
 #include "interrupt_controller.h"
-#include "memory_map.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -194,7 +193,7 @@ static void interrupt(cpu_t* cpu)
         beacon();
         exit(-1);
         backup_cpu = *cpu;
-        cpu->PC = INTERRUPT_VECTOR_TABLE_START + get_interrupt_source(cpu->ic);
+        cpu->PC = get_interrupt_vector_table_starting_address(cpu->ic) + get_interrupt_source(cpu->ic);
     }
 
     pipeline_stage = FETCH1;

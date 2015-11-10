@@ -1,6 +1,7 @@
 
 #include "computer.h"
 #include "cpu.h"
+#include "memory_map.h"
 #include "memory_bus.h"
 #include "memory.h"
 #include "graphics.h"
@@ -69,7 +70,7 @@ computer_t* build_computer(void)
     const uint16_t DISPLAY_HEIGHT = 480;
     const uint32_t NUM_MEM_LOCATIONS = 1024;
     memory_bus_t* bus = make_memory_bus();
-    interrupt_controller_t* ic = make_interrupt_controller();
+    interrupt_controller_t* ic = make_interrupt_controller(INTERRUPT_VECTOR_TABLE_START);
 
     cpu_t* cpu = build_cpu(bus, ic);
     memory_t* RAM = make_memory(NUM_MEM_LOCATIONS);

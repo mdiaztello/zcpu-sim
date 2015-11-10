@@ -16,8 +16,14 @@ extern "C"
 
 TEST_GROUP(CPU_INSTRUCTION_TESTS)
 {
+    interrupt_controller_t* ic;
+
     void setup(void)
     {
+        // none of these tests are testing the interrupt abilities of the
+        // processor, so pass in a bogus address
+        const uint32_t BOGUS_INTERRUPT_VECTOR_TABLE_STARTING_ADDRESS = 0x00;
+        ic = make_interrupt_controller(BOGUS_INTERRUPT_VECTOR_TABLE_STARTING_ADDRESS);
     }
 
     void teardown(void)
@@ -76,7 +82,6 @@ uint32_t get_register_value(cpu_t* cpu, uint8_t register_name)
 TEST(CPU_INSTRUCTION_TESTS, cpu_test_helper_functions_working_correctly)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint32_t instruction = 0xAAAAAAAA; //not a real instruction encoding
@@ -123,7 +128,6 @@ const uint32_t ALL_ONES = ((uint32_t)(~0));
 TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_zero_yields_zero)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -147,7 +151,6 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_zero_yields_zero)
 TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_all_ones_yields_a_result_identical_to_the_value_of_the_other_register)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -171,7 +174,6 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_all_ones_yields_a_result_
 TEST(CPU_INSTRUCTION_TESTS, AND_with_bitmask_clears_the_desired_bits)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -195,7 +197,6 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_bitmask_clears_the_desired_bits)
 TEST(CPU_INSTRUCTION_TESTS, ANDING_a_register_with_itself_changes_nothing)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -219,7 +220,6 @@ TEST(CPU_INSTRUCTION_TESTS, ANDING_a_register_with_itself_changes_nothing)
 TEST(CPU_INSTRUCTION_TESTS, result_of_ANDING_two_registers_can_be_written_to_any_register)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R31;
@@ -246,7 +246,6 @@ TEST(CPU_INSTRUCTION_TESTS, result_of_ANDING_two_registers_can_be_written_to_any
 TEST(CPU_INSTRUCTION_TESTS, OR_with_register_value_of_zero_yields_a_result_identical_to_the_value_of_the_other_register)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -270,7 +269,6 @@ TEST(CPU_INSTRUCTION_TESTS, OR_with_register_value_of_zero_yields_a_result_ident
 TEST(CPU_INSTRUCTION_TESTS, OR_with_register_value_of_all_ones_yields_all_ones)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -294,7 +292,6 @@ TEST(CPU_INSTRUCTION_TESTS, OR_with_register_value_of_all_ones_yields_all_ones)
 TEST(CPU_INSTRUCTION_TESTS, OR_with_bitmask_sets_the_desired_bits)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -318,7 +315,6 @@ TEST(CPU_INSTRUCTION_TESTS, OR_with_bitmask_sets_the_desired_bits)
 TEST(CPU_INSTRUCTION_TESTS, ORING_a_register_with_itself_changes_nothing)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -342,7 +338,6 @@ TEST(CPU_INSTRUCTION_TESTS, ORING_a_register_with_itself_changes_nothing)
 TEST(CPU_INSTRUCTION_TESTS, result_of_ORING_two_registers_can_be_written_to_any_register)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R31;
@@ -370,7 +365,6 @@ TEST(CPU_INSTRUCTION_TESTS, result_of_ORING_two_registers_can_be_written_to_any_
 TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_zero_yields_all_ones)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t VALUE_UNUSED = 77;
@@ -395,7 +389,6 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_zero_yields_all_ones
 TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_all_ones_yields_zero)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t VALUE_UNUSED = 77;
@@ -420,7 +413,6 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_all_ones_yields_zero
 TEST(CPU_INSTRUCTION_TESTS, INVERTING_works_with_arbitrary_source_and_destination_registers)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t VALUE_UNUSED = 77;
@@ -449,7 +441,6 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_works_with_arbitrary_source_and_destinatio
 TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_zero_yields_a_result_identical_to_the_value_of_the_other_register)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -473,7 +464,6 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_zero_yields_a_resu
 TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_all_ones_is_the_same_as_inverting_the_other_register)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -497,7 +487,6 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_all_ones_is_the_sa
 TEST(CPU_INSTRUCTION_TESTS, XORING_works_correctly_with_arbitrary_values)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -521,7 +510,6 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_works_correctly_with_arbitrary_values)
 TEST(CPU_INSTRUCTION_TESTS, XORING_works_with_arbitrary_source_and_destination_registers)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R17;
@@ -548,7 +536,6 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_works_with_arbitrary_source_and_destination_r
 TEST(CPU_INSTRUCTION_TESTS, ADDING_zero_to_a_register_changes_nothing)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -572,7 +559,6 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_zero_to_a_register_changes_nothing)
 TEST(CPU_INSTRUCTION_TESTS, ADDING_two_values_gives_the_expected_result)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -596,7 +582,6 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_two_values_gives_the_expected_result)
 TEST(CPU_INSTRUCTION_TESTS, ADDING_one_to_a_value_of_all_ones_overflows_and_yields_zero)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R16;
@@ -620,7 +605,6 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_one_to_a_value_of_all_ones_overflows_and_yiel
 TEST(CPU_INSTRUCTION_TESTS, ADDING_negative_twos_complement_numbers_to_positive_values_works_properly)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R16;
@@ -644,7 +628,6 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_negative_twos_complement_numbers_to_positive_
 TEST(CPU_INSTRUCTION_TESTS, ADDING_a_pair_of_twos_complement_negative_numbers_works_correctly)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R16;
@@ -672,7 +655,6 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_a_pair_of_twos_complement_negative_numbers_wo
 TEST(CPU_INSTRUCTION_TESTS, SUBBING_zero_from_a_register_changes_nothing)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -696,7 +678,6 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_zero_from_a_register_changes_nothing)
 TEST(CPU_INSTRUCTION_TESTS, SUBBING_one_from_zero_yields_all_ones)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R0;
@@ -720,7 +701,6 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_one_from_zero_yields_all_ones)
 TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_register_from_itself_yields_zero)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R16;
@@ -744,7 +724,6 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_register_from_itself_yields_zero)
 TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_twos_complement_negative_number_from_a_positive_number_is_the_same_as_adding)
 {
     memory_bus_t mock_bus;
-    interrupt_controller_t* ic = make_interrupt_controller();
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t DEST_REG_NAME = R16;
