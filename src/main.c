@@ -35,6 +35,7 @@ static void quit_simulation(void)
 #define BOX_WIDTH   100
 #define BOX_HEIGHT  100
 #define STARTING_POSITION_IN_FRAME_BUFFER    (((SCREEN_HEIGHT/2) - (BOX_HEIGHT/2))*SCREEN_WIDTH + ((SCREEN_WIDTH/2) - (BOX_WIDTH/2)))
+#define SOFTWARE_INTERRUPT_SOURCE   47
 
 #define PIXEL_POSITION R1
 #define PIXEL_VALUE R2
@@ -44,10 +45,13 @@ static void quit_simulation(void)
 #define DEC(x) ((ADD_IMMEDIATE((x),(x),-1)))
 uint32_t program[] = {
     //Main program
-    CALL(5),    //call the "draw the box" subroutine
+    LOAD(R0, 3),
+    CALL(7),    //call the "draw the box" subroutine
+    SWI(R0),
     HCF,
 
     //program data
+    SOFTWARE_INTERRUPT_SOURCE,
     BOX_WIDTH,
     BOX_HEIGHT,
     STARTING_POSITION_IN_FRAME_BUFFER,
