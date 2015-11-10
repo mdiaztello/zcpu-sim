@@ -631,3 +631,20 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_offsets_correctly)
     //offset limited to lower 23-bits of argument
     CHECK( BRA(0x7F800000) == 0x47800000 );
 }
+
+//TRAP instruction Tests
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, trap_instruction_properly_encodes_trap_vector_register)
+{
+    CHECK( TRAP(R0) == 0x54000000 );
+    CHECK( TRAP(R2) == 0x54400000 );
+    CHECK( TRAP(R7) == 0x54E00000 );
+    CHECK( TRAP(R17) == 0x56200000 );
+    CHECK( TRAP(R29) == 0x57A00000 );
+    CHECK( TRAP(R31) == 0x57E00000 );
+}
+
+//RETURNI instruction Test
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, returni_instruction_encoded_correctly)
+{
+    CHECK( RETURNI == 0x58000000 );
+}

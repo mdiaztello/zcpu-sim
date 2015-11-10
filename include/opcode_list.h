@@ -38,6 +38,8 @@ enum opcode_t
     OPCODE_CALLR   = (0x13),
 
     OPCODE_JUMPR   = (0x14),
+    OPCODE_TRAP    = (0x15),
+    OPCODE_RETURNI = (0x16)
 };
 
 #endif
