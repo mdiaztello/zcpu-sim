@@ -184,6 +184,12 @@ static uint32_t get_branch_pc_offset(cpu_t* cpu)
     return GET_BITS_IN_RANGE(cpu->IR, 0, 22);
 }
 
+static uint32_t* get_trap_vector_register(cpu_t* cpu)
+{
+    uint32_t reg_name = GET_BITS_IN_RANGE(cpu->IR, 21, 25);
+    return &cpu->registers[reg_name];
+}
+
 static void interrupt(cpu_t* cpu)
 {
     if(interrupt_requested(cpu->ic) && !interrupt_in_process(cpu))
@@ -233,6 +239,7 @@ static void decode(cpu_t* cpu)
     cpu->destination_reg1 = get_destination_reg1(cpu);
     cpu->destination_reg2 = get_destination_reg2(cpu);
     cpu->store_source_reg = get_store_source_reg(cpu);
+    cpu->trap_vector_register = get_trap_vector_register(cpu);
     cpu->immediate_mode = get_immediate_mode_flag(cpu);
     cpu->instruction_condition_codes = get_condition_code_bits(cpu);
     cpu->ALU_immediate_bits = sign_extend_ALU_immediate_bits(get_ALU_immediate_bits(cpu));

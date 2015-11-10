@@ -11,7 +11,7 @@
 
 #define Hz (1u)
 #define MHz (1000000*Hz)
-#define CPU_FREQUENCY (3*MHz)
+#define CPU_FREQUENCY (25*MHz)
 
 
 enum timer_control_bits_t
@@ -62,8 +62,8 @@ timer_t* make_timer(uint8_t IRQ_number)
     BIT_SET(timer->control_bits, TIMER_ON_BIT);
     BIT_SET(timer->control_bits, TIMER_INTERRUPT_ENABLE_BIT);
     timer->prescale_value = 0;
-    //timer->timer_value = UINT32_MAX - CPU_FREQUENCY;
-    timer->timer_value = 0;
+    timer->timer_value = UINT32_MAX - 10*CPU_FREQUENCY;
+    //timer->timer_value = 0;
 
     return timer;
 }
@@ -86,6 +86,7 @@ void timer_cycle(timer_t* timer, memory_bus_t* bus, interrupt_controller_t* ic)
 
     if(timer->timer_value < previous_timer_value)
     {
+        beacon();
         update_timer_overflow_status(timer);
         update_interrupt_status(timer, ic);
     }

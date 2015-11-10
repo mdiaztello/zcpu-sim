@@ -309,6 +309,11 @@ void cpu_callr(cpu_t* cpu)
 void cpu_swi(cpu_t* cpu)
 {
     //FIXME: request an interrupt here using the same mechanism as hardware would
+
+    printf("SOFTWARE INTERRUPT REQUESTED!\n");
+    uint8_t software_interrupt_request_number = GET_BITS_IN_RANGE(*cpu->trap_vector_register, 0, 6);
+    printf("The software interrupt request number is %d\n", software_interrupt_request_number);
+    request_interrupt(cpu->ic, software_interrupt_request_number);
 }
 
 
