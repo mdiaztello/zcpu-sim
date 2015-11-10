@@ -22,6 +22,8 @@ bool is_pc_relative_instruction(uint8_t opcode);
 
 bool is_load_effective_address_instruction(uint8_t opcode);
 bool is_load_instruction(uint8_t opcode);
+void enter_interrupt_mode(cpu_t* cpu);
+void exit_interrupt_mode(cpu_t* cpu);
 
 
 #endif

@@ -17,7 +17,6 @@
 #include <stdbool.h>
 
 
-struct cpu backup_cpu; //holds backups of our cpu's registers, etc while in interrupt mode
 
 enum cpu_pipeline_stage_t { INTERRUPT, FETCH1, FETCH2, DECODE, MEMORY1, MEMORY2, EXECUTE };
 
@@ -189,11 +188,7 @@ static void interrupt(cpu_t* cpu)
 {
     if(interrupt_requested(cpu->ic) && !interrupt_in_process(cpu))
     {
-        set_interrupt_in_process_status(cpu, true);
-        beacon();
-        exit(-1);
-        backup_cpu = *cpu;
-        cpu->PC = get_interrupt_vector_table_starting_address(cpu->ic) + get_interrupt_source(cpu->ic);
+        enter_interrupt_mode(cpu);
     }
 
     pipeline_stage = FETCH1;

@@ -6,6 +6,9 @@
 #include "cpu_ops.h"
 #include "opcode_list.h"
 #include "debug.h"
+#include <stdlib.h> //for exit()
+
+struct cpu backup_cpu; //holds backups of our cpu's registers, etc while in interrupt mode
 
 static cpu_op instruction_table[NUM_INSTRUCTIONS];
 
@@ -13,6 +16,7 @@ enum condition_code_register_bit_position_t { POSITIVE_BIT = 0, ZERO_BIT = 1, NE
 
 static const uint8_t INTERRUPT_IN_PROCESS_BIT = 0;
 
+static void set_interrupt_in_process_status(cpu_t* cpu, bool interrupt_in_process);
 //sets the condition code bits according to the result of the last ALU operation
 //FIXME: Do I want or need additional condition codes?
 void update_condition_code_bits(cpu_t* cpu, uint32_t result)
@@ -39,6 +43,7 @@ bool interrupt_in_process(cpu_t* cpu)
     return CHECK_BIT_SET(cpu->process_status_reg, INTERRUPT_IN_PROCESS_BIT);
 }
 
+
 void set_interrupt_in_process_status(cpu_t* cpu, bool interrupt_in_process)
 {
     if(interrupt_in_process)
@@ -50,6 +55,26 @@ void set_interrupt_in_process_status(cpu_t* cpu, bool interrupt_in_process)
         BIT_CLEAR(cpu->process_status_reg, INTERRUPT_IN_PROCESS_BIT);
     }
 }
+
+
+void enter_interrupt_mode(cpu_t* cpu)
+{
+    set_interrupt_in_process_status(cpu, true);
+    beacon();       //DEBUG
+    exit(-1);       //DEBUG
+    backup_cpu = *cpu;
+    cpu->PC = get_interrupt_vector_table_starting_address(cpu->ic) + get_interrupt_source(cpu->ic);
+}
+
+
+
+void exit_interrupt_mode(cpu_t* cpu)
+{
+    set_interrupt_in_process_status(cpu, false);
+    beacon();
+    *cpu = backup_cpu;
+}
+
 
 //tells us if the instruction touches memory during execution (i.e. load/store)
 bool is_memory_instruction(uint8_t opcode)
@@ -277,6 +302,27 @@ void cpu_callr(cpu_t* cpu)
     cpu_jump_base_plus_offset(cpu);
 }
 
+//  TRAP/SWI/SYSCALL
+//      OPCODE = 010101
+//      e.g. TRAP <trap-vector-register> <unused-bits>
+//          6-bits + 5-bits-unused + 21-bits-unused
+void cpu_swi(cpu_t* cpu)
+{
+    //FIXME: request an interrupt here using the same mechanism as hardware would
+}
+
+
+//  RETURNI/RFI/SYSCALL_EXIT
+//      opcode = 010110
+//      e.g. RETURNI
+//          "RETURNI 0x0000000"
+//          6-bits + 26-bits-unused
+void cpu_rfi(cpu_t* cpu)
+{
+    exit_interrupt_mode(cpu);
+}
+
+
 void cpu_nop(cpu_t* cpu)
 {
     if(cpu != NULL)
@@ -289,7 +335,7 @@ static cpu_op instruction_table[NUM_INSTRUCTIONS] =
 {
     &cpu_and, &cpu_or, &cpu_not, &cpu_xor, &cpu_add, &cpu_sub, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_load_pc_relative, &cpu_load_base_plus_offset, &cpu_load_effective_address, &cpu_nop, &cpu_nop,
-    &cpu_jump_pc_relative, &cpu_branch, &cpu_call, &cpu_callr, &cpu_jump_base_plus_offset, &cpu_nop, &cpu_nop, &cpu_nop,
+    &cpu_jump_pc_relative, &cpu_branch, &cpu_call, &cpu_callr, &cpu_jump_base_plus_offset, &cpu_swi, &cpu_rfi, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
     &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop, &cpu_nop,
