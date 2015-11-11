@@ -678,6 +678,12 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, callr_instruction_encodes_offset_properly)
     LONGS_EQUAL(0x4C00FFFF, CALLR(R0, 0x7FFFFFFF));
 }
 
+//RETURN instruction test
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, return_instruction_encoded_correctly)
+{
+    LONGS_EQUAL(0x501E0000, RETURN);
+}
+
 //TRAP instruction Tests
 TEST(PREPROCESSOR_ASSEMBLER_TESTS, trap_instruction_properly_encodes_trap_vector_register)
 {
