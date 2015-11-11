@@ -123,7 +123,7 @@
 
 //CALL INSTRUCTIONS
 #define CALL(pc_relative_offset)                                            JUMP_PC_RELATIVE(OPCODE_CALL, pc_relative_offset)
-#define CALLR(base_reg, offset)                                             BASE_PLUS_OFFSET(OPCODE_CALLR, 0x00, offset)
+#define CALLR(base_reg, offset)                                             BASE_PLUS_OFFSET(OPCODE_CALLR, 0x00, base_reg, offset)
 
 //TRAP INSTRUCTION AND ALIASES
 #define TRAP(trap_vector_register)                                          REGISTER_OP(OPCODE_TRAP, trap_vector_register, 0x00, 0x00)

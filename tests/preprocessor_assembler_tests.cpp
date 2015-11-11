@@ -632,6 +632,52 @@ TEST(PREPROCESSOR_ASSEMBLER_TESTS, branch_pc_relative_encodes_offsets_correctly)
     CHECK( BRA(0x7F800000) == 0x47800000 );
 }
 
+//CALL instruction tests
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, call_instruction_encodes_offsets_properly)
+{
+    //offset -1
+    LONGS_EQUAL(0x4BFFFFFF, CALL(-1));
+    //offset 0
+    LONGS_EQUAL(0x48000000, CALL(0));
+    //offset 1
+    LONGS_EQUAL(0x48000001, CALL(1));
+    //largest negative offset -2^25
+    LONGS_EQUAL(0x4A000000, CALL(-33554432));
+    //largest positive offset 2^25 - 1
+    LONGS_EQUAL(0x49FFFFFF , CALL(33554431));
+    //offset limited to the bottom 26-bits of argument to instruction
+    LONGS_EQUAL(0x4BFFFFFF, CALL(0x7FFFFFFF));
+}
+
+//CALLR instruction tests
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, callr_instruction_encodes_base_register_properly)
+{
+    LONGS_EQUAL(0x4C000000, CALLR(R0, 0));
+    LONGS_EQUAL(0x4C020000, CALLR(R2, 0));
+    LONGS_EQUAL(0x4C050000, CALLR(R5, 0));
+    LONGS_EQUAL(0x4C0B0000, CALLR(R11, 0));
+    LONGS_EQUAL(0x4C130000, CALLR(R19, 0));
+    LONGS_EQUAL(0x4C170000, CALLR(R23, 0));
+    LONGS_EQUAL(0x4C1D0000, CALLR(R29, 0));
+    LONGS_EQUAL(0x4C1F0000, CALLR(R31, 0));
+}
+
+TEST(PREPROCESSOR_ASSEMBLER_TESTS, callr_instruction_encodes_offset_properly)
+{
+    //offset -1
+    LONGS_EQUAL(0x4C00FFFF, CALLR(R0, -1));
+    //offset 0
+    LONGS_EQUAL(0x4C000000, CALLR(R0, 0));
+    //offset 1
+    LONGS_EQUAL(0x4C000001, CALLR(R0, 1));
+    //largest negative offset -2^15
+    LONGS_EQUAL(0x4C008000, CALLR(R0, -32768));
+    //largest positive offset 2^15 - 1
+    LONGS_EQUAL(0x4C007FFF , CALLR(R0, 32767));
+    //offset limited to the bottom 16-bits of argument to instruction
+    LONGS_EQUAL(0x4C00FFFF, CALLR(R0, 0x7FFFFFFF));
+}
+
 //TRAP instruction Tests
 TEST(PREPROCESSOR_ASSEMBLER_TESTS, trap_instruction_properly_encodes_trap_vector_register)
 {
