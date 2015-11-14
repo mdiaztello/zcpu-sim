@@ -56,13 +56,40 @@ void set_interrupt_in_process_status(cpu_t* cpu, bool interrupt_in_process)
     }
 }
 
+static bool is_operating_system_scheduler_interrupt(interrupt_controller_t* ic)
+{
+    //OS scheduler interrupt service routines must manually save software
+    //context because the whole point of the scheduler is that it will not
+    //return to the previous context after exiting the ISR, and
+    //saving/restoring the machine state automatically would defeat this.
+    const uint8_t PREEMPTIVE_SCHEDULER_IRQ = IRQ_0;
+    const uint8_t COOPERATIVE_SCHEDULER_IRQ = IRQ_128;
+    uint8_t interrupt_source = get_interrupt_source(ic);
+    return (PREEMPTIVE_SCHEDULER_IRQ == interrupt_source || COOPERATIVE_SCHEDULER_IRQ == interrupt_source);
+}
+
+static void backup_machine_state(cpu_t* cpu)
+{
+    backup_cpu = *cpu;
+}
+
+static void restore_machine_state(cpu_t* cpu)
+{
+    *cpu = backup_cpu;
+}
 
 void enter_interrupt_mode(cpu_t* cpu)
 {
+    if(!is_operating_system_scheduler_interrupt(cpu->ic))
+    {
+        backup_machine_state(cpu);
+    }
+
     set_interrupt_in_process_status(cpu, true);
+
     beacon();       //DEBUG
     exit(-1);       //DEBUG
-    backup_cpu = *cpu;
+
     cpu->PC = get_interrupt_vector_table_starting_address(cpu->ic) + get_interrupt_source(cpu->ic);
 }
 
@@ -70,9 +97,12 @@ void enter_interrupt_mode(cpu_t* cpu)
 
 void exit_interrupt_mode(cpu_t* cpu)
 {
+    if(!is_operating_system_scheduler_interrupt(cpu->ic))
+    {
+        restore_machine_state(cpu);
+    }
     set_interrupt_in_process_status(cpu, false);
     beacon();
-    *cpu = backup_cpu;
 }
 
 
