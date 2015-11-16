@@ -91,6 +91,9 @@
 #define SHIFTL(destination_reg, source_reg1, source_reg2)                   REGISTER_OP(OPCODE_SHIFTL, destination_reg, source_reg1, source_reg2)
 #define SHIFTL_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits)         IMMEDIATE_OP(OPCODE_SHIFTL, destination_reg, source_reg, immediate_value_15_bits)
 
+#define ASHIFTR(destination_reg, source_reg1, source_reg2)                   REGISTER_OP(OPCODE_ASHIFTR, destination_reg, source_reg1, source_reg2)
+#define ASHIFTR_IMMEDIATE(destination_reg, source_reg, immediate_value_15_bits)         IMMEDIATE_OP(OPCODE_ASHIFTR, destination_reg, source_reg, immediate_value_15_bits)
+
 //LOAD INSTRUCTIONS
 
 #define LOAD(destination_reg, pc_relative_offset)                           PC_RELATIVE(OPCODE_LOAD, destination_reg, pc_relative_offset)

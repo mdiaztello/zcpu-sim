@@ -16,7 +16,7 @@ enum opcode_t
     OPCODE_DIV     = (0x07),
     OPCODE_COMPARE = (0x08),
     OPCODE_SHIFTL  = (0x09),
-    OPCODE_SHIFTR  = (0x0A),
+    OPCODE_ASHIFTR  = (0x0A),
 
     //Load instructions
     OPCODE_LOAD    = (0x0B),
