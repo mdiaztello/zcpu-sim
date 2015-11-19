@@ -422,21 +422,17 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_zero_yields_a_resu
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R1;
-    const uint32_t SOURCE_REG1_VALUE = 0x00;
-    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
-    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG2_VALUE;
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = 0x00 };
+    const zcpu_register_t SOURCE_REG2 = { .name = R1, .value = 0x01234567 };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG2.value;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -445,21 +441,17 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_all_ones_is_the_sa
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R1;
-    const uint32_t SOURCE_REG1_VALUE = ALL_ONES;
-    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
-    const uint32_t EXPECTED_TEST_VALUE = ~SOURCE_REG2_VALUE;
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = ALL_ONES };
+    const zcpu_register_t SOURCE_REG2 = { .name = R1, .value = 0x01234567 };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
+    const uint32_t EXPECTED_TEST_VALUE = ~SOURCE_REG2.value;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -468,21 +460,17 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_works_correctly_with_arbitrary_values)
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R1;
-    const uint32_t SOURCE_REG1_VALUE = 0x000FF000;
-    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
-    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE ^ SOURCE_REG2_VALUE;
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = 0x000FF000 };
+    const zcpu_register_t SOURCE_REG2 = { .name = R1, .value = 0x01234567 };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value ^ SOURCE_REG2.value;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -491,21 +479,17 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_works_with_arbitrary_source_and_destination_r
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R17;
-    const uint8_t SOURCE_REG1_NAME = R5;
-    const uint8_t SOURCE_REG2_NAME = R29;
-    const uint32_t SOURCE_REG1_VALUE = 0x000FF000;
-    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
-    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE ^ SOURCE_REG2_VALUE;
+    const zcpu_register_t DEST_REG    = { .name = R17, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R5, .value = 0x000FF000 };
+    const zcpu_register_t SOURCE_REG2 = { .name = R29, .value = 0x01234567 };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value ^ SOURCE_REG2.value;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
