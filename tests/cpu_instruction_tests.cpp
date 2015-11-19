@@ -110,7 +110,7 @@ typedef struct zcpu_register_t zcpu_register_t;
 
 
 
-void test_single_instruction2( cpu_t* cpu_to_test,
+void test_single_instruction( cpu_t* cpu_to_test,
                               memory_bus_t* mock_bus,
                               const zcpu_register_t destination_register,
                               const zcpu_register_t source_register1,
@@ -126,27 +126,6 @@ void test_single_instruction2( cpu_t* cpu_to_test,
     single_step(cpu_to_test, mock_bus);
 
     LONGS_EQUAL(expected_test_value, get_register_value(cpu_to_test, destination_register.name));
-}
-
-
-void test_single_instruction( cpu_t* cpu_to_test,
-                              memory_bus_t* mock_bus,
-                              uint32_t instruction_to_execute,
-                              uint8_t destination_reg_name,
-                              uint8_t source_reg1_name,
-                              uint8_t source_reg2_name,
-                              uint32_t source_reg1_value,
-                              uint32_t source_reg2_value,
-                              uint32_t expected_test_value )
-{
-    set_register_value(cpu_to_test, source_reg1_name, source_reg1_value);
-    set_register_value(cpu_to_test, source_reg2_name, source_reg2_value);
-
-    set_expected_instruction(mock_bus, instruction_to_execute);
-
-    single_step(cpu_to_test, mock_bus);
-
-    LONGS_EQUAL(expected_test_value, get_register_value(cpu_to_test, destination_reg_name));
 }
 
 //TESTS FOR ANDING TWO REGISTERS AND WRITING OUTPUT TO A THIRD REG
@@ -167,7 +146,7 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_zero_yields_zero)
     const uint32_t INSTRUCTION_TO_EXECUTE = (AND(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value & SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -186,7 +165,7 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_all_ones_yields_a_result_
     const uint32_t INSTRUCTION_TO_EXECUTE = (AND(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value & SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -205,7 +184,7 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_bitmask_clears_the_desired_bits)
     const uint32_t INSTRUCTION_TO_EXECUTE = (AND(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value & SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -224,7 +203,7 @@ TEST(CPU_INSTRUCTION_TESTS, ANDING_a_register_with_itself_changes_nothing)
     const uint32_t INSTRUCTION_TO_EXECUTE = (AND(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value & SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -243,7 +222,7 @@ TEST(CPU_INSTRUCTION_TESTS, result_of_ANDING_two_registers_can_be_written_to_any
     const uint32_t INSTRUCTION_TO_EXECUTE = (AND(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value & SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -265,7 +244,7 @@ TEST(CPU_INSTRUCTION_TESTS, OR_with_register_value_of_zero_yields_a_result_ident
     const uint32_t INSTRUCTION_TO_EXECUTE = (OR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value | SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -284,7 +263,7 @@ TEST(CPU_INSTRUCTION_TESTS, OR_with_register_value_of_all_ones_yields_all_ones)
     const uint32_t INSTRUCTION_TO_EXECUTE = (OR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value | SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -303,7 +282,7 @@ TEST(CPU_INSTRUCTION_TESTS, OR_with_bitmask_sets_the_desired_bits)
     const uint32_t INSTRUCTION_TO_EXECUTE = (OR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value | SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -322,7 +301,7 @@ TEST(CPU_INSTRUCTION_TESTS, ORING_a_register_with_itself_changes_nothing)
     const uint32_t INSTRUCTION_TO_EXECUTE = (OR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value | SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -341,7 +320,7 @@ TEST(CPU_INSTRUCTION_TESTS, result_of_ORING_two_registers_can_be_written_to_any_
     const uint32_t INSTRUCTION_TO_EXECUTE = (OR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value | SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -365,7 +344,7 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_zero_yields_all_ones
     const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG.name, SOURCE_REG1.name));
     const uint32_t EXPECTED_TEST_VALUE = ALL_ONES;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -385,7 +364,7 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_all_ones_yields_zero
     const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG.name, SOURCE_REG1.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x00;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -405,7 +384,7 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_works_with_arbitrary_source_and_destinatio
     const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG.name, SOURCE_REG1.name));
     const uint32_t EXPECTED_TEST_VALUE = ~0xA0B0C0D0;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -428,7 +407,7 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_zero_yields_a_resu
     const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -447,7 +426,7 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_a_register_with_a_value_of_all_ones_is_the_sa
     const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = ~SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -466,7 +445,7 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_works_correctly_with_arbitrary_values)
     const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value ^ SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -485,7 +464,7 @@ TEST(CPU_INSTRUCTION_TESTS, XORING_works_with_arbitrary_source_and_destination_r
     const uint32_t INSTRUCTION_TO_EXECUTE = (XOR(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value ^ SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -507,7 +486,7 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_zero_to_a_register_changes_nothing)
     const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG2.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -526,7 +505,7 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_two_values_gives_the_expected_result)
     const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x0FFFFFFF;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -545,7 +524,7 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_one_to_a_value_of_all_ones_overflows_and_yiel
     const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x00000000;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -564,7 +543,7 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_negative_twos_complement_numbers_to_positive_
     const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x000001FF; // -1 + 0x200 = 0x1FF
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -583,7 +562,7 @@ TEST(CPU_INSTRUCTION_TESTS, ADDING_a_pair_of_twos_complement_negative_numbers_wo
     const uint32_t INSTRUCTION_TO_EXECUTE = (ADD(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = 0xFFFFFDFF;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -606,7 +585,7 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_zero_from_a_register_changes_nothing)
     const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -625,7 +604,7 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_one_from_zero_yields_all_ones)
     const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = ALL_ONES;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -644,7 +623,7 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_register_from_itself_yields_zero)
     const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x00000000;
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
@@ -663,7 +642,7 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_twos_complement_negative_number_from_a_pos
     const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x00000201; // 0x200 - (-1) = 0x201
 
-    test_single_instruction2( cpu, &mock_bus,
+    test_single_instruction( cpu, &mock_bus,
                              DEST_REG,
                              SOURCE_REG1,
                              SOURCE_REG2,
