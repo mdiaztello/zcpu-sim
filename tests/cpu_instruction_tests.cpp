@@ -600,21 +600,17 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_zero_from_a_register_changes_nothing)
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R1;
-    const uint32_t SOURCE_REG1_VALUE = 0x01234567;
-    const uint32_t SOURCE_REG2_VALUE = 0x00;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
-    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE;
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = 0x01234567 };
+    const zcpu_register_t SOURCE_REG2 = { .name = R1, .value = 0x00 };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -623,21 +619,17 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_one_from_zero_yields_all_ones)
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R1;
-    const uint32_t SOURCE_REG1_VALUE = 0x00;
-    const uint32_t SOURCE_REG2_VALUE = 0x01;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = 0x00 };
+    const zcpu_register_t SOURCE_REG2 = { .name = R1, .value = 0x01 };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = ALL_ONES;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -646,21 +638,17 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_register_from_itself_yields_zero)
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R16;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R0;
-    const uint32_t SOURCE_REG1_VALUE = 0xFFFFFFFF;
-    const uint32_t SOURCE_REG2_VALUE = 0xFFFFFFFF;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
+    const zcpu_register_t DEST_REG    = { .name = R16, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = ALL_ONES };
+    const zcpu_register_t SOURCE_REG2 = { .name = R0, .value = ALL_ONES };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x00000000;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -669,21 +657,17 @@ TEST(CPU_INSTRUCTION_TESTS, SUBBING_a_twos_complement_negative_number_from_a_pos
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R16;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R23;
-    const uint32_t SOURCE_REG1_VALUE = 0x00000200;
-    const uint32_t SOURCE_REG2_VALUE = 0xFFFFFFFF; //-1
-    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
-    const uint32_t EXPECTED_TEST_VALUE = 0x00000201; // 0x200 - (-1) = 0x200
+    const zcpu_register_t DEST_REG    = { .name = R16, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = 0x00000200 };
+    const zcpu_register_t SOURCE_REG2 = { .name = R23, .value = ALL_ONES };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (SUB(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
+    const uint32_t EXPECTED_TEST_VALUE = 0x00000201; // 0x200 - (-1) = 0x201
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
