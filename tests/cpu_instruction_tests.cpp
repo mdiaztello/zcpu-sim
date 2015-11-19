@@ -100,6 +100,35 @@ TEST(CPU_INSTRUCTION_TESTS, cpu_test_helper_functions_working_correctly)
     CHECK(mock_bus.device_ready == true);
 }
 
+struct zcpu_register_t
+{
+    uint8_t name;
+    uint32_t value;
+};
+
+typedef struct zcpu_register_t zcpu_register_t;
+
+
+
+void test_single_instruction2( cpu_t* cpu_to_test,
+                              memory_bus_t* mock_bus,
+                              const zcpu_register_t destination_register,
+                              const zcpu_register_t source_register1,
+                              const zcpu_register_t source_register2,
+                              uint32_t instruction_to_execute,
+                              uint32_t expected_test_value )
+{
+    set_register_value(cpu_to_test, source_register1.name, source_register1.value);
+    set_register_value(cpu_to_test, source_register2.name, source_register2.value);
+
+    set_expected_instruction(mock_bus, instruction_to_execute);
+
+    single_step(cpu_to_test, mock_bus);
+
+    LONGS_EQUAL(expected_test_value, get_register_value(cpu_to_test, destination_register.name));
+}
+
+
 void test_single_instruction( cpu_t* cpu_to_test,
                               memory_bus_t* mock_bus,
                               uint32_t instruction_to_execute,
@@ -123,6 +152,8 @@ void test_single_instruction( cpu_t* cpu_to_test,
 //TESTS FOR ANDING TWO REGISTERS AND WRITING OUTPUT TO A THIRD REG
 //FIXME: All of these ALU instruction tests also need to verify the condition code bits
 
+//constant values for test data
+const uint32_t INVALID_DATA = 0x44444444;
 const uint32_t ALL_ONES = ((uint32_t)(~0));
 
 TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_zero_yields_zero)
@@ -153,21 +184,17 @@ TEST(CPU_INSTRUCTION_TESTS, AND_with_register_value_of_all_ones_yields_a_result_
     memory_bus_t mock_bus;
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = R1;
-    const uint32_t SOURCE_REG1_VALUE = ALL_ONES;
-    const uint32_t SOURCE_REG2_VALUE = 0x01234567;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (AND(DEST_REG_NAME, SOURCE_REG1_NAME, SOURCE_REG2_NAME));
-    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1_VALUE & SOURCE_REG2_VALUE;
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = ALL_ONES };
+    const zcpu_register_t SOURCE_REG2 = { .name = R1, .value = 0x01234567 };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (AND(DEST_REG.name, SOURCE_REG1.name, SOURCE_REG2.name));
+    const uint32_t EXPECTED_TEST_VALUE = SOURCE_REG1.value & SOURCE_REG2.value;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
