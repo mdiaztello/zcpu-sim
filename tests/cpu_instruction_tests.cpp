@@ -720,14 +720,13 @@ TEST(CPU_INSTRUCTION_TESTS, JUMP_instructions_properly_handle_large_positive_off
 //JUMPR instruction tests
 
 static void test_JUMPR_instruction(cpu_t* cpu_to_test,
-                                  memory_bus_t* mock_bus,
-                                  uint32_t instruction_to_execute,
-                                  uint32_t base_reg_name,
-                                  uint32_t base_reg_value,
-                                  const uint32_t starting_address,
-                                  const uint32_t expected_ending_address)
+                                   memory_bus_t* mock_bus,
+                                   zcpu_register_t base_register,
+                                   uint32_t instruction_to_execute,
+                                   const uint32_t starting_address,
+                                   const uint32_t expected_ending_address)
 {
-    set_register_value(cpu_to_test, base_reg_name, base_reg_value);
+    set_register_value(cpu_to_test, base_register.name, base_register.value);
     set_PC(cpu_to_test, starting_address);
     set_expected_instruction(mock_bus, instruction_to_execute);
     single_step(cpu_to_test, mock_bus);
@@ -742,12 +741,11 @@ TEST(CPU_INSTRUCTION_TESTS, JUMPR_instructions_properly_handle_large_negative_of
     const uint32_t starting_addr = 0x000000FF;
     const uint32_t NUM_OFFSET_BITS_FOR_JUMPR_INSTRUCTION = 16;
     const int32_t JUMPR_OFFSET = GET_LARGEST_NEGATIVE_TWOS_COMPLEMENT_VALUE_THAT_FITS_IN_NUM_BITS(NUM_OFFSET_BITS_FOR_JUMPR_INSTRUCTION);
-    const uint8_t base_reg_name = R0;
-    const uint32_t base_reg_value = 0;
-    const uint32_t instruction = (JUMPR(base_reg_name, JUMPR_OFFSET));
-    const uint32_t expected_ending_address = ( base_reg_value + JUMPR_OFFSET);
+    const zcpu_register_t base_register = { .name = R0, .value = 0 };
+    const uint32_t instruction = (JUMPR(base_register.name, JUMPR_OFFSET));
+    const uint32_t expected_ending_address = ( base_register.value + JUMPR_OFFSET);
 
-    test_JUMPR_instruction(cpu, &mock_bus, instruction, base_reg_name, base_reg_value, starting_addr, expected_ending_address);
+    test_JUMPR_instruction(cpu, &mock_bus, base_register, instruction, starting_addr, expected_ending_address);
 }
 
 TEST(CPU_INSTRUCTION_TESTS, JUMPR_instruction_with_offset_of_zero_just_jumps_to_the_base_register_address)
@@ -757,12 +755,11 @@ TEST(CPU_INSTRUCTION_TESTS, JUMPR_instruction_with_offset_of_zero_just_jumps_to_
 
     const uint32_t starting_addr = 0x000000FF;
     const int32_t JUMPR_OFFSET = 0;
-    const uint8_t base_reg_name = R0;
-    const uint32_t base_reg_value = 0xDEADBEEF;
-    const uint32_t instruction = (JUMPR(base_reg_name, JUMPR_OFFSET));
-    const uint32_t expected_ending_address = base_reg_value;
+    const zcpu_register_t base_register = { .name = R0, .value = 0xDEADBEEF };
+    const uint32_t instruction = (JUMPR(base_register.name, JUMPR_OFFSET));
+    const uint32_t expected_ending_address = base_register.value;
 
-    test_JUMPR_instruction(cpu, &mock_bus, instruction, base_reg_name, base_reg_value, starting_addr, expected_ending_address);
+    test_JUMPR_instruction(cpu, &mock_bus, base_register, instruction, starting_addr, expected_ending_address);
 }
 
 TEST(CPU_INSTRUCTION_TESTS, JUMPR_instructions_properly_handle_large_positive_offsets)
@@ -773,12 +770,11 @@ TEST(CPU_INSTRUCTION_TESTS, JUMPR_instructions_properly_handle_large_positive_of
     const uint32_t starting_addr = 0x000000FF;
     const uint32_t NUM_OFFSET_BITS_FOR_JUMPR_INSTRUCTION = 16;
     const int32_t JUMPR_OFFSET = GET_LARGEST_POSITIVE_TWOS_COMPLEMENT_VALUE_THAT_FITS_IN_NUM_BITS(NUM_OFFSET_BITS_FOR_JUMPR_INSTRUCTION);
-    const uint8_t base_reg_name = R0;
-    const uint32_t base_reg_value = 0;
-    const uint32_t instruction = (JUMPR(base_reg_name, JUMPR_OFFSET));
-    const uint32_t expected_ending_address = ( base_reg_value + JUMPR_OFFSET);
+    const zcpu_register_t base_register = { .name = R0, .value = 0 };
+    const uint32_t instruction = (JUMPR(base_register.name, JUMPR_OFFSET));
+    const uint32_t expected_ending_address = ( base_register.value + JUMPR_OFFSET);
 
-    test_JUMPR_instruction(cpu, &mock_bus, instruction, base_reg_name, base_reg_value, starting_addr, expected_ending_address);
+    test_JUMPR_instruction(cpu, &mock_bus, base_register, instruction, starting_addr, expected_ending_address);
 }
 
 TEST(CPU_INSTRUCTION_TESTS, JUMPR_instructions_works_with_other_registers)
@@ -788,10 +784,9 @@ TEST(CPU_INSTRUCTION_TESTS, JUMPR_instructions_works_with_other_registers)
 
     const uint32_t starting_addr = 0x000000FF;
     const int32_t JUMPR_OFFSET = 0x0004110;
-    const uint8_t base_reg_name = R31;
-    const uint32_t base_reg_value = 0xDEADBEEF;
-    const uint32_t instruction = (JUMPR(base_reg_name, JUMPR_OFFSET));
+    const zcpu_register_t base_register = { .name = R31, .value = 0xDEADBEEF };
+    const uint32_t instruction = (JUMPR(base_register.name, JUMPR_OFFSET));
     const uint32_t expected_ending_address = 0xDEADFFFF;
 
-    test_JUMPR_instruction(cpu, &mock_bus, instruction, base_reg_name, base_reg_value, starting_addr, expected_ending_address);
+    test_JUMPR_instruction(cpu, &mock_bus, base_register, instruction, starting_addr, expected_ending_address);
 }
