@@ -359,21 +359,17 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_zero_yields_all_ones
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t VALUE_UNUSED = 77;
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = VALUE_UNUSED;
-    const uint32_t SOURCE_REG1_VALUE = 0x00;
-    const uint32_t SOURCE_REG2_VALUE = VALUE_UNUSED;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG_NAME, SOURCE_REG1_NAME));
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = 0x00 };
+    const zcpu_register_t SOURCE_REG2 = { .name = VALUE_UNUSED, .value = VALUE_UNUSED };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG.name, SOURCE_REG1.name));
     const uint32_t EXPECTED_TEST_VALUE = ALL_ONES;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -383,21 +379,17 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_a_register_with_value_all_ones_yields_zero
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t VALUE_UNUSED = 77;
-    const uint8_t DEST_REG_NAME = R0;
-    const uint8_t SOURCE_REG1_NAME = R0;
-    const uint8_t SOURCE_REG2_NAME = VALUE_UNUSED;
-    const uint32_t SOURCE_REG1_VALUE = ALL_ONES;
-    const uint32_t SOURCE_REG2_VALUE = VALUE_UNUSED;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG_NAME, SOURCE_REG1_NAME));
+    const zcpu_register_t DEST_REG    = { .name = R0, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R0, .value = ALL_ONES };
+    const zcpu_register_t SOURCE_REG2 = { .name = VALUE_UNUSED, .value = VALUE_UNUSED };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG.name, SOURCE_REG1.name));
     const uint32_t EXPECTED_TEST_VALUE = 0x00;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
@@ -407,21 +399,17 @@ TEST(CPU_INSTRUCTION_TESTS, INVERTING_works_with_arbitrary_source_and_destinatio
     cpu_t* cpu = build_cpu(&mock_bus, ic);
 
     const uint8_t VALUE_UNUSED = 77;
-    const uint8_t DEST_REG_NAME = R17;
-    const uint8_t SOURCE_REG1_NAME = R31;
-    const uint8_t SOURCE_REG2_NAME = VALUE_UNUSED;
-    const uint32_t SOURCE_REG1_VALUE = 0xA0B0C0D0;
-    const uint32_t SOURCE_REG2_VALUE = VALUE_UNUSED;
-    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG_NAME, SOURCE_REG1_NAME));
+    const zcpu_register_t DEST_REG    = { .name = R17, .value = INVALID_DATA };
+    const zcpu_register_t SOURCE_REG1 = { .name = R31, .value = 0xA0B0C0D0 };
+    const zcpu_register_t SOURCE_REG2 = { .name = VALUE_UNUSED, .value = VALUE_UNUSED };
+    const uint32_t INSTRUCTION_TO_EXECUTE = (NOT(DEST_REG.name, SOURCE_REG1.name));
     const uint32_t EXPECTED_TEST_VALUE = ~0xA0B0C0D0;
 
-    test_single_instruction( cpu, &mock_bus,
+    test_single_instruction2( cpu, &mock_bus,
+                             DEST_REG,
+                             SOURCE_REG1,
+                             SOURCE_REG2,
                              INSTRUCTION_TO_EXECUTE,
-                             DEST_REG_NAME,
-                             SOURCE_REG1_NAME,
-                             SOURCE_REG2_NAME,
-                             SOURCE_REG1_VALUE,
-                             SOURCE_REG2_VALUE,
                              EXPECTED_TEST_VALUE);
 }
 
