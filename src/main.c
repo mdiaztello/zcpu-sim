@@ -1,5 +1,25 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: main.c
+//
+//  DESCRIPTION: This file acts like a simple driver for the whole simulator. 
+//  It will just build the computer, pass it a program to run, and then begin
+//  the simulation.
+//
+// ----------------------------------------------------------------------------
 
+// TODO: Instead of writing an ASM program inside of this file and using the
+// preprocessor assembler, I think I will want to pass in a
+// pre-compiled/assembled file that the simulated computer can load from.
+// Eventually this can go from being a raw executable program to a file that
+// represents a fake hard drive image, which would more accurately reflect how
+// a real personal computer system boots.
+
+// TODO: I don't know at the moment, but it may be better to separate out the
+// graphics simulation code from the SDL initialization code and then stick the
+// SDL initialization here so that the simulator can run without needing to
+// create a window each time. I haven't decided how to do this just yet.
 
 #include <stdio.h>
 #include <stdint.h>
