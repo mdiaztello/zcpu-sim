@@ -1,15 +1,31 @@
 
-
-//This module will handle the display subsystem for the computer. It will
-//handle the double-buffering and act transparently for the CPU so that the CPU
-//can just write to the frame buffer in its memory map and everything will just
-//work.
+// ----------------------------------------------------------------------------
 //
-//All of the SDL code necessary to make this work will be encapsulated here
-
-//The bulk of this code was gleaned from http://lazyfoo.net/tutorials/SDL/ and
-//https://wiki.libsdl.org/MigrationGuide because prior to today (2015-03-16), I
-//had no idea how to use SDL!
+//  FILE: graphics.c
+//
+//  DESCRIPTION: This module will handle the display subsystem for the
+//  computer. It will handle the double-buffering and act transparently for the
+//  CPU so that the CPU can just write to the frame buffer in its memory map
+//  and everything will appear on the screen as expected.
+//
+//  On the user interface side of things, this module connects our virtual
+//  graphics and display "hardware" to the program's output window so that the
+//  user can see what the simulated computer is trying to display. It uses the
+//  Simple DirectMedia Layer (SDL) in order to do this is a cross-platform way.
+//
+//  All of the SDL code necessary to make this work will be encapsulated here.
+//  TODO: I may eventually need to separate out the SDL code from this module
+//  so that I can initialize it separately. Currently, since the SDL code is
+//  initialized here, I can't run a simulation without a window being created,
+//  which makes remote development/testing new code that doesn't need graphics
+//  very difficult. I don't know yet how I will separate the graphics
+//  simulation code from the SDL initialization code yet, though.
+//
+//  The bulk of this code was gleaned from http://lazyfoo.net/tutorials/SDL/
+//  and https://wiki.libsdl.org/MigrationGuide because prior to today
+//  (2015-03-16), I had no idea how to use SDL!
+//
+// ----------------------------------------------------------------------------
 
 // include any SDL stuff here
 #include "SDL.h"

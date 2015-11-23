@@ -1,4 +1,23 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: keyboard.c
+//
+//  DESCRIPTION: This module simulates a virtual keyboard interface for the
+//  computer simulator. It can request interrupts from the CPU when a key is
+//  pressed. The CPU will then jump to the keyboard's interrupt service routine
+//  to handle reception of the new character that is transmitted by the key
+//  press. The CPU will interact with the keyboard "hardware" via special
+//  memory-mapped registers whose addresses are defined in
+//  include/memory_map.h.
+//
+//  On the user interface side of this simulator, the virtual keyboard hardware
+//  is connected to real keyboard hardware via SDL. SDL can capture keyboard
+//  events from the OS which we can then pass along to the simulator via
+//  interrupt requests and memory-mapped registers.
+//
+// ----------------------------------------------------------------------------
+
 
 
 #include "SDL.h"

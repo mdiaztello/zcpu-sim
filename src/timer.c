@@ -1,4 +1,22 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: timer.c
+//
+//  DESCRIPTION: This is a general purpose "hardware" timer module for use in
+//  my computer system. Any time a new timer is needed for some purpose, a new
+//  timer can be instantiated from this code. The timers on this machine can
+//  only receive their clock signal from the system clock, but they can divide
+//  down their own clocks by an arbitrary amount ranging between a factor of 2
+//  and a factor of 2^32-1
+//
+//  They have only an overflow interrupt in order to keep things simple. I
+//  might consider changing things in the future depending on how this scheme
+//  works out.
+//
+// ----------------------------------------------------------------------------
+
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -22,15 +40,6 @@ enum timer_control_bits_t
 };
 
 const uint32_t MIN_PRESCALE_VALUE = 2;
-
-
-//The timers on this machine can only receive their clock signal from the
-//system clock, but they can divide down their own clocks by an arbitrary
-//amount ranging between a factor of 2 and a factor of 2^32-1
-//
-//They have only an overflow interrupt in order to keep things simple. I might
-//consider changing things in the future depending on how this scheme works
-//out.
 
 struct timer_t
 {

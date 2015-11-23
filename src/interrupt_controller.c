@@ -1,4 +1,21 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: interrupt_controller.c
+//
+//  DESCRIPTION: This module simulates an interrupt controller for the CPU. The
+//  interrupt controller is the hardware module that interacts with the
+//  peripheral devices that are capable of requesting interrupts from the CPU.
+//  Peripherals simulate pulling on an interrupt request line by calling
+//  request_interrupt() with the IRQ number they were assigned when they were
+//  hooked into the computer system. The actual hardware would have individual
+//  input lines for each possible interrupt source and would convert the
+//  asserted interrupt line into the appropriate IRQ number in order to relay
+//  that info to the CPU, which will use the IRQ number to determine
+//  which interrupt service routine to jump to.
+//
+// ----------------------------------------------------------------------------
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -6,15 +23,6 @@
 
 #include "interrupt_controller.h"
 #include "queue.h"
-
-// The interrupt controller is the hardware module that interacts with the
-// peripheral devices that are capable of requesting interrupts from the CPU.
-// Peripherals simulate pulling on an interrupt request line by calling
-// request_interrupt() with their assigned IRQ number. The actual hardware
-// would have individual input lines for each possible interrupt source and
-// would convert the asserted interrupt line into the appropriate IRQ number in
-// order to relay that info to the processor, which will use the IRQ number to
-// determine which interrupt service routine to jump to.
 
 //TODO: make sure to add some mechanism for globally disabling interrupts (or
 //at least the maskable interrupts)

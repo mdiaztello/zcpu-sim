@@ -1,4 +1,16 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: computer.c
+//
+//  DESCRIPTION: This module builds and then connects all of the various
+//  computer system subcomponents together. Conceptually, it represents a full
+//  personal computer system that a user can interact with. It also provides a
+//  way for the user to load programs, single-step, run, and output computer
+//  state.
+//
+// ----------------------------------------------------------------------------
+
 #include "computer.h"
 #include "cpu.h"
 #include "memory_map.h"

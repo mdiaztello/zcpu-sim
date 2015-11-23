@@ -1,9 +1,18 @@
 
-
-//This file defines the cpu module user-facing functions as well
-//as any additional functions necessary to implement the CPU internals (except
-//for implementing the instructions, which reside in another file).
-
+// ----------------------------------------------------------------------------
+//
+//  FILE: cpu.c
+//
+//  DESCRIPTION: This is the top-level module that acts like a CPU to the
+//  outside world. It defines user-facing functions for building/destroying a
+//  CPU, clocking the CPU (i.e. causing it to process instructions), and
+//  querying CPU state. It also defines module-level helper functions that are
+//  necessary to model processor internals such as decoding logic and pipeline
+//  stages. Implementation of the actual CPU instruction execution phases is
+//  done in the file cpu_ops.c. Further explanation of this can be found in
+//  cpu_ops.c.
+//
+// ----------------------------------------------------------------------------
 
 #include "debug.h"
 #include "cpu.h"

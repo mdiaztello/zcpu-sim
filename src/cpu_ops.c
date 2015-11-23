@@ -1,6 +1,20 @@
 
-//This submodule implements all of the opcodes for the CPU and sticks them in 
-//a table that the cpu structure links to when it is created.
+// ----------------------------------------------------------------------------
+//
+//  FILE: cpu_ops.c
+//
+//  DESCRIPTION: This is a submodule for the CPU and is used by cpu.c. It isn't
+//  used directly by the rest of the program. It is separate from cpu.c to make
+//  cpu.c smaller/easier to read, but also so that the CPU module doesn't need
+//  to know the specific encoding of an instruction in order to execute the
+//  instruction. All of the instructions that the processor supports are
+//  implemented in separate functions and then put in a table that the CPU
+//  top-level module can index into to quickly retreive. This makes the CPU
+//  module code simpler/easier to read when compared with the alternative
+//  implementation (a giant switch-statement to determine which instruction is
+//  being executed).
+//
+// ----------------------------------------------------------------------------
 
 #include "bit_twiddling.h"
 #include "cpu_ops.h"

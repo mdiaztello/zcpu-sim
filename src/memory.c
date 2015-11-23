@@ -1,4 +1,21 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: memory.c
+//
+//  DESCRIPTION: This module implements our computer's RAM and is kept separate
+//  from the CPU module partly to reflect that memory in personal computer
+//  systems is located on separate chips and partly to decouple the
+//  implementation of the two modules. Decoupling things in this way means that
+//  changing the implementation of the RAM module (to do things like simulating
+//  large access times or banked access) can be done easily and the scope of
+//  the changes can be limited.
+//
+// ----------------------------------------------------------------------------
+
+// TODO: I may want to simulate cached memory access in the future, so I will
+// eventually need to change the delay time to access this memory module.
+
 #include "debug.h"
 #include "memory_bus.h"
 #include "memory.h"

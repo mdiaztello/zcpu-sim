@@ -1,4 +1,16 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: queue.c
+//
+//  DESCRIPTION: This module is a general purpose implementation of a queue
+//  data structure, but I intend to use it to implement my interrupt controller
+//  module. I decided to put this code in a separate module so that it could be
+//  tested separately from the interrupt controller logic. I also separated
+//  this module in case a queue may be useful in other parts of the code.
+//
+// ----------------------------------------------------------------------------
+
 
 #include "queue.h"
 #include <stdlib.h>

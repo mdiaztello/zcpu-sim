@@ -1,4 +1,16 @@
 
+// ----------------------------------------------------------------------------
+//
+//  FILE: memory_bus.c
+//
+//  DESCRIPTION: This module is the interface between the CPU and all of the
+//  memory mapped devices, whether they are timers, keyboards, RAM, etc. Aside
+//  from the fact that personal computer systems are organized in a similar
+//  manner, keeping this code in a separate module reduces the amount of
+//  coupling between the CPU module and the system's peripherals.
+//
+// ----------------------------------------------------------------------------
+
 
 #include "debug.h"
 #include "memory_bus.h"
