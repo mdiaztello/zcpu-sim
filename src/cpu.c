@@ -238,6 +238,32 @@ static void fetch2(cpu_t* cpu)
 
 static void decode(cpu_t* cpu)
 {
+    uint32_t instruction = cpu->IR;
+    cpu->opcode = GET_BITS_IN_RANGE(instruction, 26, 31);
+    //we don't know what kind of instruction we have yet, but we can speculatively
+    //gather other information like source registers and what not because during
+    //execution, the instructions will only reference what they need, effectively discarding the
+    //garbage information in the other registers
+    cpu->source_reg1 = &cpu->registers[GET_BITS_IN_RANGE(instruction, 16, 20)];
+    cpu->source_reg2 = &cpu->registers[GET_BITS_IN_RANGE(instruction, 11, 15)];
+
+
+    cpu->destination_reg1 = &cpu->registers[GET_BITS_IN_RANGE(instruction, 21, 25)];
+    cpu->destination_reg2 = &cpu->registers[GET_BITS_IN_RANGE(instruction, 6, 10)];
+
+    cpu->store_source_reg = &cpu->registers[GET_BITS_IN_RANGE(instruction, 21, 25)];
+
+    cpu->trap_vector_register = &cpu->registers[GET_BITS_IN_RANGE(instruction, 21, 25)];
+
+    cpu->immediate_mode = CHECK_BIT_SET(instruction, 0);
+    cpu->instruction_condition_codes = get_condition_code_bits(cpu);
+    cpu->ALU_immediate_bits = sign_extend_ALU_immediate_bits(get_ALU_immediate_bits(cpu));
+    cpu->load_pc_relative_offset_bits = sign_extend_pc_relative_offset(get_pc_relative_offset(cpu));
+    cpu->base_reg = get_base_reg(cpu);
+    cpu->base_register_offset_bits = sign_extend_base_offset(get_base_register_offset(cpu));
+    cpu->jump_pc_relative_offset_bits = sign_extend_jump_pc_relative_offset(get_jump_pc_offset(cpu));
+    cpu->branch_pc_relative_offset_bits = sign_extend_branch_pc_relative_offset(get_branch_pc_offset(cpu));
+#if 0
     cpu->opcode = get_opcode(cpu);
     //we don't know what kind of instruction we have yet, but we can speculatively 
     //gather other information like source registers and what not because during
@@ -257,6 +283,8 @@ static void decode(cpu_t* cpu)
     cpu->base_register_offset_bits = sign_extend_base_offset(get_base_register_offset(cpu));
     cpu->jump_pc_relative_offset_bits = sign_extend_jump_pc_relative_offset(get_jump_pc_offset(cpu));
     cpu->branch_pc_relative_offset_bits = sign_extend_branch_pc_relative_offset(get_branch_pc_offset(cpu));
+#endif
+
     //load/store instructions get special treatment in our FSM
     if(is_memory_instruction(cpu->opcode))
     {

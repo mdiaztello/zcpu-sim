@@ -63,11 +63,13 @@ static void quit_simulation(void)
 #define BOX_HEIGHT_COUNTER R5
 #define INC(x) ((ADD_IMMEDIATE((x),(x),1)))
 #define DEC(x) ((ADD_IMMEDIATE((x),(x),-1)))
+#define NOP OR(R0, R0, R0)
 uint32_t program[] = {
     //Main program
     LOAD(R0, 3),
     CALL(7),    //call the "draw the box" subroutine
-    SWI(R0),
+    //SWI(R0),
+    NOP,
     HCF,
 
     //program data
